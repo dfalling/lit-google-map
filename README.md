@@ -1,3 +1,5 @@
+Fork of [lit-google-map](https://github.com/arkadiuszwojcik/lit-google-map/), adding in change events from [launchscout's fork](https://github.com/launchscout/lit-google-map).
+
 # lit-google-map
 
 This project is port of [google-map](https://www.webcomponents.org/element/GoogleWebComponents/google-map) webcomponent based on [Lit v2](https://lit.dev/) library.
@@ -83,6 +85,11 @@ Example:
 <lit-google-map api-key="SOME_API_KEY" zoom="6" map-type="satellite" center-latitude="51.8436554" center-longitude="19.5070867">    
 </lit-google-map>
 ```
+
+## Events
+
+* '*bounds_changed*': Custom Event with detail attribute containing `north`, `south`, `east`, and `west` attributes.
+* '*tilesloaded*': Custom Event containing the same data as `bounds_changed`.
 
 ## Marker element attributes
 
