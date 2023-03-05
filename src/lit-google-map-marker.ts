@@ -21,6 +21,9 @@ export class LitGoogleMapMarker extends LitElement {
   @property({ type: String, reflect: true })
   icon: string | null = null;
 
+  @property({ type: String, reflect: true })
+  id: string | null = null;
+
   map: google.maps.Map = null;
   marker: google.maps.Marker = null;
   info: google.maps.InfoWindow;
@@ -108,6 +111,7 @@ export class LitGoogleMapMarker extends LitElement {
     this.marker.addListener("mouseover", () => {
       this.dispatchEvent(
         new CustomEvent("mouseover", {
+          id: this.id,
           bubbles: true,
           composed: true,
         })
@@ -117,6 +121,7 @@ export class LitGoogleMapMarker extends LitElement {
     this.marker.addListener("mouseout", () => {
       this.dispatchEvent(
         new CustomEvent("mouseout", {
+          id: this.id,
           bubbles: true,
           composed: true,
         })

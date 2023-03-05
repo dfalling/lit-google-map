@@ -84,15 +84,15 @@ Example:
 </lit-google-map>
 ```
 
-## Map Events
+## Map events
 
-* '*bounds_changed*' - Custom Event with detail attribute containing `north`, `south`, `east`, and `west` attributes.
-* '*tilesloaded*' - Custom Event containing the same data as `bounds_changed`.
+* '*bounds_changed*' - Custom Event with `detail` attribute containing `north`, `south`, `east`, and `west` attributes
+* '*tilesloaded*' - Custom Event containing the same data as `bounds_changed`
 
-## Marker Events
+## Marker events
 
-* '*mouseover*': - Custom Event with no additional data.
-* '*mouseout*': - Custom Event with no additional data.
+* '*mouseover*': - Custom Event with `id` attribute
+* '*mouseout*': - Custom Event with `id` attribute
 
 ## Marker element attributes
 
@@ -101,6 +101,7 @@ Example:
 * '*label*' - Marker label
 * '*z-index*' - Marker z index
 * '*icon*' - Marker icon image url
+* '*id*' - Use with Marker events to identify the source
 
 Example:
 
