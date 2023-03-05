@@ -498,27 +498,41 @@ LitGoogleMapPolygon = __decorate([
 let LitGoogleMap = class LitGoogleMap extends LitElement {
     constructor() {
         super(...arguments);
-        this.apiKey = '';
-        this.version = '3.48';
+        this.apiKey = "";
+        this.version = "3.48";
         this.styles = {};
         this.zoom = 8;
         this.fitToMarkers = false;
-        this.mapType = 'roadmap';
+        this.mapType = "roadmap";
         this.centerLatitude = -34.397;
         this.centerLongitude = 150.644;
-        this.language = '';
-        this.mapId = '';
+        this.language = "";
+        this.mapId = "";
         this.map = null;
     }
     initGMap() {
         if (this.map != null) {
             return;
         }
-        var gMapApiElement = this.shadowRoot.getElementById('api');
+        var gMapApiElement = this.shadowRoot.getElementById("api");
         if (gMapApiElement == null || gMapApiElement.libraryLoaded != true) {
             return;
         }
-        this.map = new google.maps.Map(this.shadowRoot.getElementById('map'), this.getMapOptions());
+        this.map = new google.maps.Map(this.shadowRoot.getElementById("map"), this.getMapOptions());
+        this.map.addListener("bounds_changed", () => {
+            this.dispatchEvent(new CustomEvent("bounds_changed", {
+                detail: this.map.getBounds().toJSON(),
+                bubbles: true,
+                composed: true,
+            }));
+        });
+        this.map.addListener("tilesloaded", () => {
+            this.dispatchEvent(new CustomEvent("tilesloaded", {
+                detail: this.map.getBounds().toJSON(),
+                bubbles: true,
+                composed: true,
+            }));
+        });
         this.updateMarkers();
         this.updateShapes();
     }
@@ -528,7 +542,7 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
             center: { lat: this.centerLatitude, lng: this.centerLongitude },
             mapTypeId: this.mapType,
             styles: this.styles,
-            mapId: this.mapId
+            mapId: this.mapId,
         };
     }
     mapApiLoaded() {
@@ -548,7 +562,9 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
     observeMarkers() {
         if (this.markerObserverSet)
             return;
-        this.addEventListener("selector-items-changed", event => { this.updateMarkers(); });
+        this.addEventListener("selector-items-changed", (event) => {
+            this.updateMarkers();
+        });
         this.markerObserverSet = true;
     }
     updateMarkers() {
@@ -558,7 +574,7 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
             return;
         var newMarkers = markersSelector.items;
         if (this.markers && newMarkers.length === this.markers.length) {
-            var added = newMarkers.filter(m => {
+            var added = newMarkers.filter((m) => {
                 return this.markers && this.markers.indexOf(m) === -1;
             });
             if (added.length == 0)
@@ -591,47 +607,47 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
             this.map.setCenter(latLngBounds.getCenter());
         }
     }
-    deselectMarker(event) {
-    }
-    deselectShape(event) {
-    }
+    deselectMarker(event) { }
+    deselectShape(event) { }
     render() {
         return html `
-            <lit-google-maps-api 
-                id="api" 
-                api-key="${this.apiKey}" 
-                version="${this.version}"
-                language="${this.language}"
-                map-id="${this.mapId}"
-                @api-load=${() => this.mapApiLoaded()}>
-            </lit-google-maps-api>
-            <lit-selector 
-                id="markers-selector"
-                selected-attribute="open"
-                activate-event="google-map-marker-open"
-                @google-map-marker-close=${(e) => this.deselectMarker(e)}>
-                    <slot id="markers" name="markers"></slot>
-            </lit-selector>
-            <lit-selector 
-                id="shapes-selector"
-                selected-attribute="open"
-                activate-event="google-map-shape-open"
-                @google-map-shape-close=${(e) => this.deselectShape(e)}>
-                    <slot id="shapes" name="shapes"></slot>
-            </lit-selector>
-            <div id="map">
-            </div>
-        `;
+      <lit-google-maps-api
+        id="api"
+        api-key="${this.apiKey}"
+        version="${this.version}"
+        language="${this.language}"
+        map-id="${this.mapId}"
+        @api-load=${() => this.mapApiLoaded()}
+      >
+      </lit-google-maps-api>
+      <lit-selector
+        id="markers-selector"
+        selected-attribute="open"
+        activate-event="google-map-marker-open"
+        @google-map-marker-close=${(e) => this.deselectMarker(e)}
+      >
+        <slot id="markers" name="markers"></slot>
+      </lit-selector>
+      <lit-selector
+        id="shapes-selector"
+        selected-attribute="open"
+        activate-event="google-map-shape-open"
+        @google-map-shape-close=${(e) => this.deselectShape(e)}
+      >
+        <slot id="shapes" name="shapes"></slot>
+      </lit-selector>
+      <div id="map"></div>
+    `;
     }
 };
 LitGoogleMap.styles = css `
-        #map {
-            width: 100%;
-            height: 100%;
-        }
-    `;
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+  `;
 __decorate([
-    property({ type: String, attribute: 'api-key' }),
+    property({ type: String, attribute: "api-key" }),
     __metadata("design:type", String)
 ], LitGoogleMap.prototype, "apiKey", void 0);
 __decorate([
@@ -647,19 +663,19 @@ __decorate([
     __metadata("design:type", Number)
 ], LitGoogleMap.prototype, "zoom", void 0);
 __decorate([
-    property({ type: Boolean, attribute: 'fit-to-markers' }),
+    property({ type: Boolean, attribute: "fit-to-markers" }),
     __metadata("design:type", Boolean)
 ], LitGoogleMap.prototype, "fitToMarkers", void 0);
 __decorate([
-    property({ type: String, attribute: 'map-type' }),
+    property({ type: String, attribute: "map-type" }),
     __metadata("design:type", String)
 ], LitGoogleMap.prototype, "mapType", void 0);
 __decorate([
-    property({ type: Number, attribute: 'center-latitude' }),
+    property({ type: Number, attribute: "center-latitude" }),
     __metadata("design:type", Number)
 ], LitGoogleMap.prototype, "centerLatitude", void 0);
 __decorate([
-    property({ type: Number, attribute: 'center-longitude' }),
+    property({ type: Number, attribute: "center-longitude" }),
     __metadata("design:type", Number)
 ], LitGoogleMap.prototype, "centerLongitude", void 0);
 __decorate([
@@ -667,11 +683,11 @@ __decorate([
     __metadata("design:type", String)
 ], LitGoogleMap.prototype, "language", void 0);
 __decorate([
-    property({ type: String, attribute: 'map-id' }),
+    property({ type: String, attribute: "map-id" }),
     __metadata("design:type", String)
 ], LitGoogleMap.prototype, "mapId", void 0);
 LitGoogleMap = __decorate([
-    customElement('lit-google-map')
+    customElement("lit-google-map")
 ], LitGoogleMap);
 
 class XSelection {
