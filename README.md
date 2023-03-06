@@ -1,21 +1,19 @@
-Fork of [lit-google-map](https://github.com/arkadiuszwojcik/lit-google-map/), adding in change events from [launchscout's fork](https://github.com/launchscout/lit-google-map).
-
 # lit-google-map
 
-This project is port of [google-map](https://www.webcomponents.org/element/GoogleWebComponents/google-map) webcomponent based on [Lit v2](https://lit.dev/) library.
+This project is a fork of [lit-google-map](https://github.com/arkadiuszwojcik/lit-google-map/).
 
-UPDATE v1.0.0 (23/02/2022) 
--  Project ported to [Lit v2](https://lit.dev/)
--  Added shapes: Circle and Polygon
--  Bug fixes
+* add map `bounds_changed` and `tilesloaded` events from [launchscout's fork](https://github.com/launchscout/lit-google-map)
+* add marker `mouseover` and `mouseout` events
 
 ## Table of contents
 
 [How to use](#How-to-use)
 
-[Map element attributes](#Map-element-attributes)
-
 [Marker element attributes](#Marker-element-attributes)
+
+[Map events](#Map-events)
+
+[Marker events](#Marker-events)
 
 [Circle shape element attributes](#Circle-shape-element-attributes)
 
@@ -86,10 +84,15 @@ Example:
 </lit-google-map>
 ```
 
-## Events
+## Map events
 
-* '*bounds_changed*': Custom Event with detail attribute containing `north`, `south`, `east`, and `west` attributes.
-* '*tilesloaded*': Custom Event containing the same data as `bounds_changed`.
+* '*bounds_changed*' - Custom Event with `detail` attribute containing `north`, `south`, `east`, and `west` attributes
+* '*tilesloaded*' - Custom Event containing the same data as `bounds_changed`
+
+## Marker events
+
+* '*mouseover*': - Custom Event with `detail` attribute containing `id` attribute
+* '*mouseout*': - Custom Event with `detail` attribute containing `id` attribute
 
 ## Marker element attributes
 
@@ -98,6 +101,7 @@ Example:
 * '*label*' - Marker label
 * '*z-index*' - Marker z index
 * '*icon*' - Marker icon image url
+* '*id*' - Use with Marker events to identify the source
 
 Example:
 
