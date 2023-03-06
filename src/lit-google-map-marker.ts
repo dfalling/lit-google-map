@@ -111,7 +111,7 @@ export class LitGoogleMapMarker extends LitElement {
     this.marker.addListener("mouseover", () => {
       this.dispatchEvent(
         new CustomEvent("mouseover", {
-          id: this.id,
+          detail: { id: this.id },
           bubbles: true,
           composed: true,
         })
@@ -121,7 +121,7 @@ export class LitGoogleMapMarker extends LitElement {
     this.marker.addListener("mouseout", () => {
       this.dispatchEvent(
         new CustomEvent("mouseout", {
-          id: this.id,
+          detail: { id: this.id },
           bubbles: true,
           composed: true,
         })
