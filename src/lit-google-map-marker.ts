@@ -50,6 +50,10 @@ export class LitGoogleMapMarker extends LitElement {
         this.marker?.setLabel(this.label);
         break;
       }
+      case "icon": {
+        this.marker?.setIcon(this.icon);
+        break;
+      }
       case "z-index": {
         this.marker?.setZIndex(this.zIndex);
         break;
@@ -172,4 +176,3 @@ export class LitGoogleMapMarker extends LitElement {
     }
   }
 }
-
