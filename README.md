@@ -4,7 +4,7 @@ This project is a fork of [lit-google-map](https://github.com/arkadiuszwojcik/li
 
 * add map `bounds_changed` and `tilesloaded` events from [launchscout's fork](https://github.com/launchscout/lit-google-map)
 * add marker `mouseover` and `mouseout` events
-* fix marker `icon` attribute not being updatedable live
+* fix marker `icon` attribute not being updateable live
 
 ## Table of contents
 
