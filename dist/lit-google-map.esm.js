@@ -205,7 +205,7 @@ let LitGoogleMapMarker = class LitGoogleMapMarker extends LitElement {
         this.marker = null;
     }
     attributeChangedCallback(name, oldval, newval) {
-        var _a, _b;
+        var _a, _b, _c;
         super.attributeChangedCallback(name, oldval, newval);
         switch (name) {
             case "open": {
@@ -224,8 +224,12 @@ let LitGoogleMapMarker = class LitGoogleMapMarker extends LitElement {
                 (_a = this.marker) === null || _a === void 0 ? void 0 : _a.setLabel(this.label);
                 break;
             }
+            case "icon": {
+                (_b = this.marker) === null || _b === void 0 ? void 0 : _b.setIcon(this.icon);
+                break;
+            }
             case "z-index": {
-                (_b = this.marker) === null || _b === void 0 ? void 0 : _b.setZIndex(this.zIndex);
+                (_c = this.marker) === null || _c === void 0 ? void 0 : _c.setZIndex(this.zIndex);
                 break;
             }
         }
