@@ -8,9 +8,13 @@
         "name": "Arkadiusz Wójcik",
         "url": "http://github.com/arkadiuszwojcik"
     },
+    "collaborators": {
+        "name": "Dennis Falling",
+        "url": "http://github.com/dfalling"
+    },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/arkadiuszwojcik/lit-google-map.git"
+        "url": "git+https://github.com/dfalling/lit-google-map.git"
     },
     "keywords": [
         "map",
