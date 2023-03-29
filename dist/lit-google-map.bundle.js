@@ -597,6 +597,7 @@
             this.styles = {};
             this.zoom = 8;
             this.fitToMarkers = false;
+            this.fitToMarkersDelay = 0;
             this.mapType = "roadmap";
             this.centerLatitude = -34.397;
             this.centerLongitude = 150.644;
@@ -696,7 +697,9 @@
                     latLngBounds.extend(new google.maps.LatLng(marker.latitude, marker.longitude));
                 }
                 if (this.markers.length > 1) {
-                    this.map.fitBounds(latLngBounds);
+                    setTimeout(() => {
+                        this.map.fitBounds(latLngBounds, 0);
+                    }, this.fitToMarkersDelay);
                 }
                 this.map.setCenter(latLngBounds.getCenter());
             }
@@ -760,6 +763,10 @@
         e({ type: Boolean, attribute: "fit-to-markers" }),
         __metadata("design:type", Boolean)
     ], exports.LitGoogleMap.prototype, "fitToMarkers", void 0);
+    __decorate([
+        e({ type: Number, attribute: "fit-to-markers-delay" }),
+        __metadata("design:type", Number)
+    ], exports.LitGoogleMap.prototype, "fitToMarkersDelay", void 0);
     __decorate([
         e({ type: String, attribute: "map-type" }),
         __metadata("design:type", String)

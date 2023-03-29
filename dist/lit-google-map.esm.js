@@ -526,6 +526,7 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         this.styles = {};
         this.zoom = 8;
         this.fitToMarkers = false;
+        this.fitToMarkersDelay = 0;
         this.mapType = "roadmap";
         this.centerLatitude = -34.397;
         this.centerLongitude = 150.644;
@@ -625,7 +626,9 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
                 latLngBounds.extend(new google.maps.LatLng(marker.latitude, marker.longitude));
             }
             if (this.markers.length > 1) {
-                this.map.fitBounds(latLngBounds);
+                setTimeout(() => {
+                    this.map.fitBounds(latLngBounds, 0);
+                }, this.fitToMarkersDelay);
             }
             this.map.setCenter(latLngBounds.getCenter());
         }
@@ -689,6 +692,10 @@ __decorate([
     property({ type: Boolean, attribute: "fit-to-markers" }),
     __metadata("design:type", Boolean)
 ], LitGoogleMap.prototype, "fitToMarkers", void 0);
+__decorate([
+    property({ type: Number, attribute: "fit-to-markers-delay" }),
+    __metadata("design:type", Number)
+], LitGoogleMap.prototype, "fitToMarkersDelay", void 0);
 __decorate([
     property({ type: String, attribute: "map-type" }),
     __metadata("design:type", String)
