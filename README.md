@@ -7,6 +7,7 @@ This project is a fork of [lit-google-map](https://github.com/arkadiuszwojcik/li
 * fix marker `icon` attribute not being updateable live
 * update dependencies and keep current with Dependabot
 * add `fit-to-markers-delay` to workaround Google Map bug that resizes to the entire world if map is in background (eg behind a modal)
+* add `omit-from-fit` to markers. This lets you add more markers to display on the map that won't affect the sizing of the bounds box
 
 ## Table of contents
 
@@ -102,6 +103,7 @@ Example:
 
 * '*latitude*' - Marker latitude position
 * '*longitude*' - Marker longitude position
+* '*omit-from-fit*' - Don't include marker when fitting map bounds to markers
 * '*label*' - Marker label
 * '*z-index*' - Marker z index
 * '*icon*' - Marker icon image url

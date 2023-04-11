@@ -161,20 +161,22 @@ export class LitGoogleMap extends LitElement {
   updateMarkers() {
     this.observeMarkers();
 
-    var markersSelector = this.shadowRoot.getElementById(
+    const markersSelector = this.shadowRoot.getElementById(
       "markers-selector"
     ) as LitSelector;
     if (!markersSelector) return;
 
-    var newMarkers = markersSelector.items;
+    const newMarkers = markersSelector.items;
 
     // do not recompute if markers have not been added or removed
     if (this.markers && newMarkers.length === this.markers.length) {
-      var added = newMarkers.filter((m) => {
+      const added = newMarkers.filter((m) => {
         return this.markers && this.markers.indexOf(m) === -1;
       });
       if (added.length == 0) return;
     }
+
+    const boundsChanged = this.checkBoundsChanged(this.markers, newMarkers);
 
     const removedMarkers =
       this.markers?.filter((m) => {
@@ -187,7 +189,7 @@ export class LitGoogleMap extends LitElement {
 
     this.attachChildrenToMap(this.markers);
 
-    if (this.fitToMarkers) {
+    if (this.fitToMarkers && boundsChanged) {
       this.fitToMarkersChanged();
     }
   }
@@ -206,9 +208,12 @@ export class LitGoogleMap extends LitElement {
   }
 
   fitToMarkersChanged() {
-    if (this.map && this.fitToMarkers && this.markers.length > 0) {
+    const markers = this.markers.filter(
+      (m) => !(m as LitGoogleMapMarker).omitFromFit
+    );
+    if (this.map && this.fitToMarkers && markers.length > 0) {
       var latLngBounds = new google.maps.LatLngBounds();
-      for (var marker of this.markers) {
+      for (var marker of markers) {
         latLngBounds.extend(
           new google.maps.LatLng(
             (marker as LitGoogleMapMarker).latitude,
@@ -218,7 +223,7 @@ export class LitGoogleMap extends LitElement {
       }
 
       // For one marker, don't alter zoom, just center it.
-      if (this.markers.length > 1) {
+      if (markers.length > 1) {
         setTimeout(() => {
           this.map.fitBounds(latLngBounds, 0);
         }, this.fitToMarkersDelay);
@@ -226,6 +231,18 @@ export class LitGoogleMap extends LitElement {
 
       this.map.setCenter(latLngBounds.getCenter());
     }
+  }
+
+  checkBoundsChanged(oldMarkers: Array<Node>, newMarkers: Array<Node>) {
+    const addedInBounds = newMarkers.filter((m) => {
+      return (
+        // skip items that are omitted from fit
+        !(m as LitGoogleMapMarker).omitFromFit &&
+        // if we have no markers, or the item wasn't there before, the bounds need to be updated
+        (!oldMarkers || oldMarkers.indexOf(m) === -1)
+      );
+    });
+    return addedInBounds.length > 0;
   }
 
   deselectMarker(event: Event) {}
