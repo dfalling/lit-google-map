@@ -583,6 +583,13 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
             }
         }
     }
+    detachChildrenFromMap(children) {
+        if (this.map) {
+            for (let child of children) {
+                child.changeMap(null);
+            }
+        }
+    }
     observeMarkers() {
         if (this.markerObserverSet)
             return;
@@ -592,6 +599,7 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         this.markerObserverSet = true;
     }
     updateMarkers() {
+        var _a;
         this.observeMarkers();
         var markersSelector = this.shadowRoot.getElementById("markers-selector");
         if (!markersSelector)
@@ -604,6 +612,10 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
             if (added.length == 0)
                 return;
         }
+        const removedMarkers = ((_a = this.markers) === null || _a === void 0 ? void 0 : _a.filter((m) => {
+            return newMarkers.indexOf(m) === -1;
+        })) || [];
+        this.detachChildrenFromMap(removedMarkers);
         this.markers = newMarkers;
         this.attachChildrenToMap(this.markers);
         if (this.fitToMarkers) {
