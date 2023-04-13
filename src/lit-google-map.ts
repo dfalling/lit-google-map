@@ -141,6 +141,14 @@ export class LitGoogleMap extends LitElement {
     }
   }
 
+  detachChildrenFromMap(children: Array<Node>) {
+    if (this.map) {
+      for (let child of children) {
+        (child as LitGoogleMapMarker).changeMap(null);
+      }
+    }
+  }
+
   observeMarkers() {
     if (this.markerObserverSet) return;
 
@@ -167,6 +175,13 @@ export class LitGoogleMap extends LitElement {
       });
       if (added.length == 0) return;
     }
+
+    const removedMarkers =
+      this.markers?.filter((m) => {
+        return newMarkers.indexOf(m) === -1;
+      }) || [];
+
+    this.detachChildrenFromMap(removedMarkers);
 
     this.markers = newMarkers;
 
