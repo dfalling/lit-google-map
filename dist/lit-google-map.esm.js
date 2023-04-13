@@ -201,6 +201,7 @@ let LitGoogleMapMarker = class LitGoogleMapMarker extends LitElement {
         this.open = false;
         this.icon = null;
         this.id = null;
+        this.omitFromFit = false;
         this.map = null;
         this.marker = null;
     }
@@ -348,6 +349,10 @@ __decorate([
     property({ type: String, reflect: true }),
     __metadata("design:type", String)
 ], LitGoogleMapMarker.prototype, "id", void 0);
+__decorate([
+    property({ type: Boolean, attribute: "omit-from-fit" }),
+    __metadata("design:type", Boolean)
+], LitGoogleMapMarker.prototype, "omitFromFit", void 0);
 LitGoogleMapMarker = __decorate([
     customElement("lit-google-map-marker")
 ], LitGoogleMapMarker);
@@ -601,24 +606,25 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
     updateMarkers() {
         var _a;
         this.observeMarkers();
-        var markersSelector = this.shadowRoot.getElementById("markers-selector");
+        const markersSelector = this.shadowRoot.getElementById("markers-selector");
         if (!markersSelector)
             return;
-        var newMarkers = markersSelector.items;
+        const newMarkers = markersSelector.items;
         if (this.markers && newMarkers.length === this.markers.length) {
-            var added = newMarkers.filter((m) => {
+            const added = newMarkers.filter((m) => {
                 return this.markers && this.markers.indexOf(m) === -1;
             });
             if (added.length == 0)
                 return;
         }
+        const boundsChanged = this.checkBoundsChanged(this.markers, newMarkers);
         const removedMarkers = ((_a = this.markers) === null || _a === void 0 ? void 0 : _a.filter((m) => {
             return newMarkers.indexOf(m) === -1;
         })) || [];
         this.detachChildrenFromMap(removedMarkers);
         this.markers = newMarkers;
         this.attachChildrenToMap(this.markers);
-        if (this.fitToMarkers) {
+        if (this.fitToMarkers && boundsChanged) {
             this.fitToMarkersChanged();
         }
     }
@@ -632,18 +638,26 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         }
     }
     fitToMarkersChanged() {
-        if (this.map && this.fitToMarkers && this.markers.length > 0) {
+        const markers = this.markers.filter((m) => !m.omitFromFit);
+        if (this.map && this.fitToMarkers && markers.length > 0) {
             var latLngBounds = new google.maps.LatLngBounds();
-            for (var marker of this.markers) {
+            for (var marker of markers) {
                 latLngBounds.extend(new google.maps.LatLng(marker.latitude, marker.longitude));
             }
-            if (this.markers.length > 1) {
+            if (markers.length > 1) {
                 setTimeout(() => {
                     this.map.fitBounds(latLngBounds, 0);
                 }, this.fitToMarkersDelay);
             }
             this.map.setCenter(latLngBounds.getCenter());
         }
+    }
+    checkBoundsChanged(oldMarkers, newMarkers) {
+        const addedInBounds = newMarkers.filter((m) => {
+            return (!m.omitFromFit &&
+                (!oldMarkers || oldMarkers.indexOf(m) === -1));
+        });
+        return addedInBounds.length > 0;
     }
     deselectMarker(event) { }
     deselectShape(event) { }

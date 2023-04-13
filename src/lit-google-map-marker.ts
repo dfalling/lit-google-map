@@ -24,6 +24,12 @@ export class LitGoogleMapMarker extends LitElement {
   @property({ type: String, reflect: true })
   id: string | null = null;
 
+  /**
+   * If set, the marker will not be used to calculate the map's bounds.
+   */
+  @property({ type: Boolean, attribute: "omit-from-fit" })
+  omitFromFit: boolean = false;
+
   map: google.maps.Map = null;
   marker: google.maps.Marker = null;
   info: google.maps.InfoWindow;
