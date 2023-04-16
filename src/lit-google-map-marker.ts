@@ -138,6 +138,16 @@ export class LitGoogleMapMarker extends LitElement {
       );
     });
 
+    this.marker.addListener("click", () => {
+      this.dispatchEvent(
+        new CustomEvent("click", {
+          detail: { id: this.id },
+          bubbles: true,
+          composed: true,
+        })
+      );
+    });
+
     this.contentChanged();
   }
 
