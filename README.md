@@ -98,6 +98,7 @@ Example:
 
 * '*mouseover*': - Custom Event with `detail` attribute containing `id` attribute
 * '*mouseout*': - Custom Event with `detail` attribute containing `id` attribute
+* '*click*': - Custom Event with `detail` attribute containing `id` attribute
 
 ## Marker element attributes
 
