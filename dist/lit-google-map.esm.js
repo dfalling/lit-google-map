@@ -569,6 +569,16 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
                 composed: true,
             }));
         });
+        this.map.addListener("click", (event) => {
+            if ("placeId" in event) {
+                event.stop();
+                this.dispatchEvent(new CustomEvent("place_click", {
+                    detail: { placeId: event.placeId },
+                    bubbles: true,
+                    composed: true,
+                }));
+            }
+        });
         this.updateMarkers();
         this.updateShapes();
     }
@@ -605,7 +615,7 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
     observeMarkers() {
         if (this.markerObserverSet)
             return;
-        this.addEventListener("selector-items-changed", (event) => {
+        this.addEventListener("selector-items-changed", () => {
             this.updateMarkers();
         });
         this.markerObserverSet = true;
