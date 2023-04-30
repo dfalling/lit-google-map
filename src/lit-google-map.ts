@@ -108,6 +108,25 @@ export class LitGoogleMap extends LitElement {
       );
     });
 
+    // https://developers.google.com/maps/documentation/javascript/examples/event-poi
+    this.map.addListener(
+      "click",
+      (event: google.maps.MapMouseEvent | google.maps.IconMouseEvent) => {
+        // event is IconMouseEvent
+        if ("placeId" in event) {
+          // prevent click from showing default google info window
+          event.stop();
+          this.dispatchEvent(
+            new CustomEvent("place_click", {
+              detail: { placeId: event.placeId },
+              bubbles: true,
+              composed: true,
+            })
+          );
+        }
+      }
+    );
+
     this.updateMarkers();
     this.updateShapes();
   }
@@ -152,7 +171,7 @@ export class LitGoogleMap extends LitElement {
   observeMarkers() {
     if (this.markerObserverSet) return;
 
-    this.addEventListener("selector-items-changed", (event) => {
+    this.addEventListener("selector-items-changed", () => {
       this.updateMarkers();
     });
     this.markerObserverSet = true;

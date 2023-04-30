@@ -93,6 +93,7 @@ Example:
 
 * '*bounds_changed*' - Custom Event with `detail` attribute containing `north`, `south`, `east`, and `west` attributes
 * '*tilesloaded*' - Custom Event containing the same data as `bounds_changed`
+* '*place_click*' - Custom Event containing `detail` attribute containing `placeId` attribute
 
 ## Marker events
 
