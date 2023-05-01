@@ -1,45 +1,47 @@
 {
-    "name": "lit-google-map",
-    "version": "1.0.1",
-    "description": "Google Maps web components based on Lit v2",
-    "private": false,
-    "license": "MIT",
-    "author": {
-        "name": "Arkadiusz Wójcik",
-        "url": "http://github.com/arkadiuszwojcik"
-    },
-    "collaborators": {
-        "name": "Dennis Falling",
-        "url": "http://github.com/dfalling"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/dfalling/lit-google-map.git"
-    },
-    "keywords": [
-        "map",
-        "maps",
-        "component",
-        "web component",
-        "lit",
-        "google"
-    ],
-    "main": "dist/lit-google-map.bundle.min.js",
-    "module": "dist/lit-google-map.esm.min.js",
-    "typings": "*.d.ts",
-    "scripts": {
-        "build": "tsc",
-        "bundle": "npm run build && rollup -c"
-    },
-    "dependencies": {
-        "lit": "^2.6.1",
-        "tslib": "^2.5.0"
-    },
-    "devDependencies": {
-        "@rollup/plugin-node-resolve": "^15.0.1",
-        "@types/google.maps": "^3.52.1",
-        "rollup": "^2.79.1",
-        "rollup-plugin-terser": "^7.0.2",
-        "typescript": "^5.0.4"
-    }
+  "name": "lit-google-map",
+  "version": "1.0.1",
+  "description": "Google Maps web components based on Lit v2",
+  "private": false,
+  "license": "MIT",
+  "author": {
+    "name": "Arkadiusz Wójcik",
+    "url": "http://github.com/arkadiuszwojcik"
+  },
+  "collaborators": {
+    "name": "Dennis Falling",
+    "url": "http://github.com/dfalling"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dfalling/lit-google-map.git"
+  },
+  "keywords": [
+    "map",
+    "maps",
+    "component",
+    "web component",
+    "lit",
+    "google"
+  ],
+  "main": "dist/lit-google-map.bundle.min.js",
+  "module": "dist/lit-google-map.esm.min.js",
+  "typings": "*.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "bundle": "npm run build && rollup -c",
+    "lint": "npx prettier --check ."
+  },
+  "dependencies": {
+    "lit": "^2.6.1",
+    "tslib": "^2.5.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@types/google.maps": "^3.52.1",
+    "prettier": "2.8.8",
+    "rollup": "^2.79.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^5.0.4"
+  }
 }
