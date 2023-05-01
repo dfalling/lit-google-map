@@ -2,12 +2,12 @@
 
 This project is a fork of [lit-google-map](https://github.com/arkadiuszwojcik/lit-google-map/).
 
-* add map `bounds_changed` and `tilesloaded` events from [launchscout's fork](https://github.com/launchscout/lit-google-map)
-* add marker `mouseover` and `mouseout` events
-* fix marker `icon` attribute not being updateable live
-* update dependencies and keep current with Dependabot
-* add `fit-to-markers-delay` to workaround Google Map bug that resizes to the entire world if map is in background (eg behind a modal)
-* add `omit-from-fit` to markers. This lets you add more markers to display on the map that won't affect the sizing of the bounds box
+- add map `bounds_changed` and `tilesloaded` events from [launchscout's fork](https://github.com/launchscout/lit-google-map)
+- add marker `mouseover` and `mouseout` events
+- fix marker `icon` attribute not being updateable live
+- update dependencies and keep current with Dependabot
+- add `fit-to-markers-delay` to workaround Google Map bug that resizes to the entire world if map is in background (eg behind a modal)
+- add `omit-from-fit` to markers. This lets you add more markers to display on the map that won't affect the sizing of the bounds box
 
 ## Table of contents
 
@@ -44,121 +44,164 @@ or its minified version:
 Use component in any place you want (remember to fill in Google Maps API key):
 
 ```html
-<lit-google-map api-key="YOUR_GOOGLE_MAPS_API_KEY">    
-</lit-google-map>
+<lit-google-map api-key="YOUR_GOOGLE_MAPS_API_KEY"> </lit-google-map>
 ```
 
 You can also include any number of map markers:
 
 ```html
 <lit-google-map api-key="YOUR_GOOGLE_MAPS_API_KEY">
-    <lit-google-map-marker slot="markers" latitude="49.4404582" longitude="20.2700361">
-    </lit-google-map-marker>  
-    <lit-google-map-marker slot="markers" latitude="50.797444" longitude="20.4600623">
-    </lit-google-map-marker>
+  <lit-google-map-marker
+    slot="markers"
+    latitude="49.4404582"
+    longitude="20.2700361"
+  >
+  </lit-google-map-marker>
+  <lit-google-map-marker
+    slot="markers"
+    latitude="50.797444"
+    longitude="20.4600623"
+  >
+  </lit-google-map-marker>
 </lit-google-map>
 ```
 
 or/and shapes:
 
 ```html
-<lit-google-map api-key="YOUR_GOOGLE_MAPS_API_KEY">  
-    <lit-google-map-circle slot="shapes" center-latitude="49.4404582" center-longitude="20.2700361">
-    </lit-google-map-circle>
+<lit-google-map api-key="YOUR_GOOGLE_MAPS_API_KEY">
+  <lit-google-map-circle
+    slot="shapes"
+    center-latitude="49.4404582"
+    center-longitude="20.2700361"
+  >
+  </lit-google-map-circle>
 </lit-google-map>
 ```
 
 ## Map element attributes
 
-* '*api-key*' - Google map API key
-* '*language*' - Google map language (optional)
-* '*map-id*' - Google map mapId (optional)
-* '*version*' - Google map js script version to load (default: '3.48')
-* '*styles*' - Map styles in json format (optional)
-* '*zoom*' - Zoom level (default: '8')
-* '*fit-to-markers*' - Fit map area to display all markers
-* '*fit-to-markers-delay*' - Delay before fitting map area to markers
-* '*map-type*' - Map type to display: 'roadmap', 'satellite', 'hybrid', 'terrain'
-* '*center-latitude*'- Latitude of map initial center point
-* '*center-longitude*' - Longitude of map initial center point
+- '_api-key_' - Google map API key
+- '_language_' - Google map language (optional)
+- '_map-id_' - Google map mapId (optional)
+- '_version_' - Google map js script version to load (default: '3.48')
+- '_styles_' - Map styles in json format (optional)
+- '_zoom_' - Zoom level (default: '8')
+- '_fit-to-markers_' - Fit map area to display all markers
+- '_fit-to-markers-delay_' - Delay before fitting map area to markers
+- '_map-type_' - Map type to display: 'roadmap', 'satellite', 'hybrid', 'terrain'
+- '_center-latitude_'- Latitude of map initial center point
+- '_center-longitude_' - Longitude of map initial center point
 
 Example:
 
 ```html
-<lit-google-map api-key="SOME_API_KEY" zoom="6" map-type="satellite" center-latitude="51.8436554" center-longitude="19.5070867">    
+<lit-google-map
+  api-key="SOME_API_KEY"
+  zoom="6"
+  map-type="satellite"
+  center-latitude="51.8436554"
+  center-longitude="19.5070867"
+>
 </lit-google-map>
 ```
 
 ## Map events
 
-* '*bounds_changed*' - Custom Event with `detail` attribute containing `north`, `south`, `east`, and `west` attributes
-* '*tilesloaded*' - Custom Event containing the same data as `bounds_changed`
-* '*place_click*' - Custom Event containing `detail` attribute containing `placeId` attribute
+- '_bounds_changed_' - Custom Event with `detail` attribute containing `north`, `south`, `east`, and `west` attributes
+- '_tilesloaded_' - Custom Event containing the same data as `bounds_changed`
+- '_place_click_' - Custom Event containing `detail` attribute containing `placeId` attribute
 
 ## Marker events
 
-* '*mouseover*' - Custom Event with `detail` attribute containing `id` attribute
-* '*mouseout*' - Custom Event with `detail` attribute containing `id` attribute
-* '*click*' - Custom Event with `detail` attribute containing `id` attribute
+- '_mouseover_' - Custom Event with `detail` attribute containing `id` attribute
+- '_mouseout_' - Custom Event with `detail` attribute containing `id` attribute
+- '_click_' - Custom Event with `detail` attribute containing `id` attribute
 
 ## Marker element attributes
 
-* '*latitude*' - Marker latitude position
-* '*longitude*' - Marker longitude position
-* '*omit-from-fit*' - Don't include marker when fitting map bounds to markers
-* '*label*' - Marker label
-* '*z-index*' - Marker z index
-* '*icon*' - Marker icon image url
-* '*id*' - Use with Marker events to identify the source
+- '_latitude_' - Marker latitude position
+- '_longitude_' - Marker longitude position
+- '_omit-from-fit_' - Don't include marker when fitting map bounds to markers
+- '_label_' - Marker label
+- '_z-index_' - Marker z index
+- '_icon_' - Marker icon image url
+- '_id_' - Use with Marker events to identify the source
 
 Example:
 
 ```html
-<lit-google-map-marker slot="markers" latitude="49.4404582" longitude="20.2700361">
+<lit-google-map-marker
+  slot="markers"
+  latitude="49.4404582"
+  longitude="20.2700361"
+>
 </lit-google-map-marker>
 ```
 
 Markers can also have associated InfoWindow with html content:
 
 ```html
-<lit-google-map-marker slot="markers" latitude="50.797444" longitude="20.4600623">
-    <p>Some description</p>
-    <img src="some_image.jpg" alt="some image">
+<lit-google-map-marker
+  slot="markers"
+  latitude="50.797444"
+  longitude="20.4600623"
+>
+  <p>Some description</p>
+  <img src="some_image.jpg" alt="some image" />
 </lit-google-map-marker>
 ```
 
 ## Circle shape element attributes
 
-* '*center-latitude*' - Circle center latitude position
-* '*center-longitude*' - Circle center longitude position
-* '*radius*' - Circle radius (default: 100000)
-* '*fill-color*' - Circle fill color
-* '*fill-opacity*' - Circle fill opacity
-* '*stroke-color*' - Circle stroke color
-* '*stroke-opacity*' - Circle stroke opacity
-* '*stroke-weight*' - Circle stroke weight
+- '_center-latitude_' - Circle center latitude position
+- '_center-longitude_' - Circle center longitude position
+- '_radius_' - Circle radius (default: 100000)
+- '_fill-color_' - Circle fill color
+- '_fill-opacity_' - Circle fill opacity
+- '_stroke-color_' - Circle stroke color
+- '_stroke-opacity_' - Circle stroke opacity
+- '_stroke-weight_' - Circle stroke weight
 
 Example:
 
 ```html
-<lit-google-map-circle slot="shapes" center-latitude="53.176389" center-longitude="22.073056" radius="50000"  fill-color="#7FB3D5" fill-opacity="0.35" stroke-color="#2874A6" stroke-opacity="0.8" stroke-weight="5">
+<lit-google-map-circle
+  slot="shapes"
+  center-latitude="53.176389"
+  center-longitude="22.073056"
+  radius="50000"
+  fill-color="#7FB3D5"
+  fill-opacity="0.35"
+  stroke-color="#2874A6"
+  stroke-opacity="0.8"
+  stroke-weight="5"
+>
 </lit-google-map-circle>
 ```
 
 ## Polygon shape element attributes
 
-* '*paths*' - Polygon paths points in form of json array
-* '*fill-color*' - Polygon fill color
-* '*fill-opacity*' - Polygon fill opacity
-* '*stroke-color*' - Polygon stroke color
-* '*stroke-opacity*' - Polygon stroke opacity
-* '*stroke-weight*' - Polygon stroke weight
+- '_paths_' - Polygon paths points in form of json array
+- '_fill-color_' - Polygon fill color
+- '_fill-opacity_' - Polygon fill opacity
+- '_stroke-color_' - Polygon stroke color
+- '_stroke-opacity_' - Polygon stroke opacity
+- '_stroke-weight_' - Polygon stroke weight
 
 Example:
 
 ```html
-<lit-google-map-polygon slot="shapes" paths='[{"lat": 53.7332, "lng": 15.5180}, {"lat": 54.0444, "lng": 18.1379}, {"lat": 53.2028, "lng": 16.9292}, {"lat": 53.7332, "lng": 15.5180}]' fill-color="#7FB3D5" fill-opacity="0.35" stroke-color="#2874A6" stroke-opacity="0.8" stroke-weight="5">
-</lit-google-map-polygon>   
+<lit-google-map-polygon
+  slot="shapes"
+  paths='[{"lat": 53.7332, "lng": 15.5180}, {"lat": 54.0444, "lng": 18.1379}, {"lat": 53.2028, "lng": 16.9292}, {"lat": 53.7332, "lng": 15.5180}]'
+  fill-color="#7FB3D5"
+  fill-opacity="0.35"
+  stroke-color="#2874A6"
+  stroke-opacity="0.8"
+  stroke-weight="5"
+>
+</lit-google-map-polygon>
 ```
 
 ## How to build
