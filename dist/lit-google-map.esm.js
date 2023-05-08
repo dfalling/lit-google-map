@@ -19,34 +19,35 @@ class ScriptLoaderMap {
         return ScriptLoaderMap.instance;
     }
     nameFromUrl(url) {
-        return url.replace(/[\:\/\%\?\&\.\=\-\,]/g, '_') + '_api';
+        return url.replace(/[\:\/\%\?\&\.\=\-\,]/g, "_") + "_api";
     }
 }
 class ScriptLoader {
     constructor(name, url, callbackName) {
-        this.callbackMacro = '%%callback%%';
+        this.callbackMacro = "%%callback%%";
         this.loaded = false;
         this.script = null;
         this.notifiers = [];
         if (!callbackName) {
             if (url.indexOf(this.callbackMacro) >= 0) {
-                callbackName = name + '_loaded';
+                callbackName = name + "_loaded";
                 url = url.replace(this.callbackMacro, callbackName);
             }
             else {
-                console.error('ScriptLoader class: a %%callback%% parameter is required in libraryUrl');
+                console.error("ScriptLoader class: a %%callback%% parameter is required in libraryUrl");
                 return;
             }
         }
         this.callbackName = callbackName;
-        window[this.callbackName] = this.success.bind(this);
+        window[this.callbackName] =
+            this.success.bind(this);
         this.addScript(url);
     }
     addScript(src) {
-        var script = document.createElement('script');
+        var script = document.createElement("script");
         script.src = src;
         script.onerror = this.handleError.bind(this);
-        var s = document.querySelector('script') || document.body;
+        var s = document.querySelector("script") || document.body;
         s.parentNode.insertBefore(script, s);
         this.script = script;
     }
@@ -57,7 +58,7 @@ class ScriptLoader {
         this.script = null;
     }
     handleError(ev) {
-        this.error = new Error('Library failed to load');
+        this.error = new Error("Library failed to load");
         this.notifyAll();
         this.cleanup();
     }
@@ -102,7 +103,7 @@ class JsonpLibraryElement extends LitElement {
     }
     libraryLoadCallback(error, detail) {
         if (error) {
-            console.warn('Library load failed:', error.message);
+            console.warn("Library load failed:", error.message);
             this.libraryErrorMessage = error.message;
         }
         else {
@@ -126,53 +127,53 @@ class JsonpLibraryElement extends LitElement {
 let LitGoogleMapsApi = class LitGoogleMapsApi extends JsonpLibraryElement {
     constructor() {
         super(...arguments);
-        this.apiKey = '';
-        this.clientId = '';
-        this.mapsUrl = 'https://maps.googleapis.com/maps/api/js?callback=%%callback%%';
-        this.version = '3.39';
-        this.language = '';
-        this.mapId = '';
+        this.apiKey = "";
+        this.clientId = "";
+        this.mapsUrl = "https://maps.googleapis.com/maps/api/js?callback=%%callback%%";
+        this.version = "3.39";
+        this.language = "";
+        this.mapId = "";
     }
     get libraryUrl() {
         return this.computeUrl(this.mapsUrl, this.version, this.apiKey, this.clientId, this.language, this.mapId);
     }
     get notifyEvent() {
-        return 'api-load';
+        return "api-load";
     }
     computeUrl(mapsUrl, version, apiKey, clientId, language, mapId) {
-        var url = mapsUrl + '&v=' + version;
-        url += '&libraries=drawing,geometry,places,visualization';
+        var url = mapsUrl + "&v=" + version;
+        url += "&libraries=drawing,geometry,places,visualization";
         if (apiKey && !clientId) {
-            url += '&key=' + apiKey;
+            url += "&key=" + apiKey;
         }
         if (clientId) {
-            url += '&client=' + clientId;
+            url += "&client=" + clientId;
         }
         if (!apiKey && !clientId) {
-            var warning = 'No Google Maps API Key or Client ID specified. ' +
-                'See https://developers.google.com/maps/documentation/javascript/get-api-key ' +
-                'for instructions to get started with a key or client id.';
+            var warning = "No Google Maps API Key or Client ID specified. " +
+                "See https://developers.google.com/maps/documentation/javascript/get-api-key " +
+                "for instructions to get started with a key or client id.";
             console.warn(warning);
         }
         if (language) {
-            url += '&language=' + language;
+            url += "&language=" + language;
         }
         if (mapId) {
-            url += '&map_ids=' + mapId;
+            url += "&map_ids=" + mapId;
         }
         return url;
     }
 };
 __decorate([
-    property({ type: String, attribute: 'api-key' }),
+    property({ type: String, attribute: "api-key" }),
     __metadata("design:type", Object)
 ], LitGoogleMapsApi.prototype, "apiKey", void 0);
 __decorate([
-    property({ type: String, attribute: 'client-id' }),
+    property({ type: String, attribute: "client-id" }),
     __metadata("design:type", Object)
 ], LitGoogleMapsApi.prototype, "clientId", void 0);
 __decorate([
-    property({ type: String, attribute: 'maps-url' }),
+    property({ type: String, attribute: "maps-url" }),
     __metadata("design:type", Object)
 ], LitGoogleMapsApi.prototype, "mapsUrl", void 0);
 __decorate([
@@ -184,11 +185,11 @@ __decorate([
     __metadata("design:type", Object)
 ], LitGoogleMapsApi.prototype, "language", void 0);
 __decorate([
-    property({ type: String, attribute: 'map-id' }),
+    property({ type: String, attribute: "map-id" }),
     __metadata("design:type", Object)
 ], LitGoogleMapsApi.prototype, "mapId", void 0);
 LitGoogleMapsApi = __decorate([
-    customElement('lit-google-maps-api')
+    customElement("lit-google-maps-api")
 ], LitGoogleMapsApi);
 
 let LitGoogleMapMarker = class LitGoogleMapMarker extends LitElement {
@@ -370,9 +371,9 @@ let LitGoogleMapCircle = class LitGoogleMapCircle extends LitElement {
         this.centerLatitude = -34.397;
         this.centerLongitude = 150.644;
         this.radius = 100000;
-        this.fillColor = '#FF0000';
+        this.fillColor = "#FF0000";
         this.fillOpacity = 0.35;
-        this.strokeColor = '#FF0000';
+        this.strokeColor = "#FF0000";
         this.strokeOpacity = 0.8;
         this.strokeWeight = 2;
         this.map = null;
@@ -382,15 +383,15 @@ let LitGoogleMapCircle = class LitGoogleMapCircle extends LitElement {
         var _a;
         super.attributeChangedCallback(name, oldval, newval);
         switch (name) {
-            case 'center-latitude': {
+            case "center-latitude": {
                 this.updateCenter();
                 break;
             }
-            case 'center-longitude': {
+            case "center-longitude": {
                 this.updateCenter();
                 break;
             }
-            case 'radius': {
+            case "radius": {
                 (_a = this.circle) === null || _a === void 0 ? void 0 : _a.setRadius(this.radius);
                 break;
             }
@@ -423,18 +424,18 @@ let LitGoogleMapCircle = class LitGoogleMapCircle extends LitElement {
             fillOpacity: this.fillOpacity,
             center: {
                 lat: this.centerLatitude,
-                lng: this.centerLongitude
+                lng: this.centerLongitude,
             },
-            radius: this.radius
+            radius: this.radius,
         });
     }
 };
 __decorate([
-    property({ type: Number, attribute: 'center-latitude' }),
+    property({ type: Number, attribute: "center-latitude" }),
     __metadata("design:type", Number)
 ], LitGoogleMapCircle.prototype, "centerLatitude", void 0);
 __decorate([
-    property({ type: Number, attribute: 'center-longitude' }),
+    property({ type: Number, attribute: "center-longitude" }),
     __metadata("design:type", Number)
 ], LitGoogleMapCircle.prototype, "centerLongitude", void 0);
 __decorate([
@@ -442,36 +443,36 @@ __decorate([
     __metadata("design:type", Number)
 ], LitGoogleMapCircle.prototype, "radius", void 0);
 __decorate([
-    property({ type: String, attribute: 'fill-color' }),
+    property({ type: String, attribute: "fill-color" }),
     __metadata("design:type", String)
 ], LitGoogleMapCircle.prototype, "fillColor", void 0);
 __decorate([
-    property({ type: Number, attribute: 'fill-opacity' }),
+    property({ type: Number, attribute: "fill-opacity" }),
     __metadata("design:type", Number)
 ], LitGoogleMapCircle.prototype, "fillOpacity", void 0);
 __decorate([
-    property({ type: String, attribute: 'stroke-color' }),
+    property({ type: String, attribute: "stroke-color" }),
     __metadata("design:type", String)
 ], LitGoogleMapCircle.prototype, "strokeColor", void 0);
 __decorate([
-    property({ type: Number, attribute: 'stroke-opacity' }),
+    property({ type: Number, attribute: "stroke-opacity" }),
     __metadata("design:type", Number)
 ], LitGoogleMapCircle.prototype, "strokeOpacity", void 0);
 __decorate([
-    property({ type: Number, attribute: 'stroke-weight' }),
+    property({ type: Number, attribute: "stroke-weight" }),
     __metadata("design:type", Number)
 ], LitGoogleMapCircle.prototype, "strokeWeight", void 0);
 LitGoogleMapCircle = __decorate([
-    customElement('lit-google-map-circle')
+    customElement("lit-google-map-circle")
 ], LitGoogleMapCircle);
 
 let LitGoogleMapPolygon = class LitGoogleMapPolygon extends LitElement {
     constructor() {
         super(...arguments);
         this.paths = [];
-        this.fillColor = '#FF0000';
+        this.fillColor = "#FF0000";
         this.fillOpacity = 0.35;
-        this.strokeColor = '#FF0000';
+        this.strokeColor = "#FF0000";
         this.strokeOpacity = 0.8;
         this.strokeWeight = 2;
         this.map = null;
@@ -498,7 +499,7 @@ let LitGoogleMapPolygon = class LitGoogleMapPolygon extends LitElement {
             strokeWeight: this.strokeWeight,
             fillColor: this.fillColor,
             fillOpacity: this.fillOpacity,
-            paths: this.paths
+            paths: this.paths,
         });
     }
 };
@@ -507,27 +508,27 @@ __decorate([
     __metadata("design:type", Array)
 ], LitGoogleMapPolygon.prototype, "paths", void 0);
 __decorate([
-    property({ type: String, attribute: 'fill-color' }),
+    property({ type: String, attribute: "fill-color" }),
     __metadata("design:type", String)
 ], LitGoogleMapPolygon.prototype, "fillColor", void 0);
 __decorate([
-    property({ type: Number, attribute: 'fill-opacity' }),
+    property({ type: Number, attribute: "fill-opacity" }),
     __metadata("design:type", Number)
 ], LitGoogleMapPolygon.prototype, "fillOpacity", void 0);
 __decorate([
-    property({ type: String, attribute: 'stroke-color' }),
+    property({ type: String, attribute: "stroke-color" }),
     __metadata("design:type", String)
 ], LitGoogleMapPolygon.prototype, "strokeColor", void 0);
 __decorate([
-    property({ type: Number, attribute: 'stroke-opacity' }),
+    property({ type: Number, attribute: "stroke-opacity" }),
     __metadata("design:type", Number)
 ], LitGoogleMapPolygon.prototype, "strokeOpacity", void 0);
 __decorate([
-    property({ type: Number, attribute: 'stroke-weight' }),
+    property({ type: Number, attribute: "stroke-weight" }),
     __metadata("design:type", Number)
 ], LitGoogleMapPolygon.prototype, "strokeWeight", void 0);
 LitGoogleMapPolygon = __decorate([
-    customElement('lit-google-map-polygon')
+    customElement("lit-google-map-polygon")
 ], LitGoogleMapPolygon);
 
 let LitGoogleMap = class LitGoogleMap extends LitElement {
@@ -538,7 +539,6 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         this.styles = {};
         this.zoom = 8;
         this.fitToMarkers = false;
-        this.fitToMarkersDelay = 0;
         this.mapType = "roadmap";
         this.centerLatitude = -34.397;
         this.centerLongitude = 150.644;
@@ -662,9 +662,7 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
                 latLngBounds.extend(new google.maps.LatLng(marker.latitude, marker.longitude));
             }
             if (markers.length > 1) {
-                setTimeout(() => {
-                    this.map.fitBounds(latLngBounds, 0);
-                }, this.fitToMarkersDelay);
+                this.map.fitBounds(latLngBounds, 0);
             }
             this.map.setCenter(latLngBounds.getCenter());
         }
@@ -736,10 +734,6 @@ __decorate([
     __metadata("design:type", Boolean)
 ], LitGoogleMap.prototype, "fitToMarkers", void 0);
 __decorate([
-    property({ type: Number, attribute: "fit-to-markers-delay" }),
-    __metadata("design:type", Number)
-], LitGoogleMap.prototype, "fitToMarkersDelay", void 0);
-__decorate([
     property({ type: String, attribute: "map-type" }),
     __metadata("design:type", String)
 ], LitGoogleMap.prototype, "mapType", void 0);
@@ -773,7 +767,7 @@ class XSelection {
         return this.multi ? this.selection.slice() : this.selection[0];
     }
     clear(excludes) {
-        this.selection.slice().forEach(item => {
+        this.selection.slice().forEach((item) => {
             if (!excludes || excludes.indexOf(item) < 0)
                 this.setItemSelected(item, false);
         });
@@ -814,7 +808,7 @@ class XSelection {
 let LitSelector = class LitSelector extends LitElement {
     constructor() {
         super(...arguments);
-        this.activateEvent = 'tap';
+        this.activateEvent = "tap";
         this.selectedAttribute = null;
         this.selected = null;
         this._selection = new XSelection((item, isSelected) => this.applySelection(item, isSelected));
@@ -825,10 +819,13 @@ let LitSelector = class LitSelector extends LitElement {
     }
     connectedCallback() {
         super.connectedCallback();
-        this.addEventListener('slotchange', event => {
+        this.addEventListener("slotchange", (event) => {
             event.stopPropagation();
             this.updateItems();
-            this.dispatchEvent(new CustomEvent("selector-items-changed", { detail: {}, composed: true }));
+            this.dispatchEvent(new CustomEvent("selector-items-changed", {
+                detail: {},
+                composed: true,
+            }));
         });
         this.addListener(this.activateEvent);
     }
@@ -839,7 +836,7 @@ let LitSelector = class LitSelector extends LitElement {
     attributeChangedCallback(name, oldval, newval) {
         super.attributeChangedCallback(name, oldval, newval);
         switch (name) {
-            case 'selected': {
+            case "selected": {
                 this.updateSelected();
                 break;
             }
@@ -876,7 +873,11 @@ let LitSelector = class LitSelector extends LitElement {
         }
     }
     itemActivate(value, item) {
-        if (this.dispatchEvent(new CustomEvent('selector-item-activate', { detail: { selected: value, item: item }, composed: true, cancelable: true })))
+        if (this.dispatchEvent(new CustomEvent("selector-item-activate", {
+            detail: { selected: value, item: item },
+            composed: true,
+            cancelable: true,
+        })))
             this.select(value);
     }
     select(value) {
@@ -897,7 +898,7 @@ let LitSelector = class LitSelector extends LitElement {
         }
     }
     valueToItem(value) {
-        return (value == null) ? null : this._items[this.valueToIndex(value)];
+        return value == null ? null : this._items[this.valueToIndex(value)];
     }
     valueToIndex(value) {
         return Number(value);
@@ -910,11 +911,11 @@ let LitSelector = class LitSelector extends LitElement {
     }
 };
 __decorate([
-    property({ type: String, attribute: 'activate-event' }),
+    property({ type: String, attribute: "activate-event" }),
     __metadata("design:type", String)
 ], LitSelector.prototype, "activateEvent", void 0);
 __decorate([
-    property({ type: String, attribute: 'selected-attribute' }),
+    property({ type: String, attribute: "selected-attribute" }),
     __metadata("design:type", String)
 ], LitSelector.prototype, "selectedAttribute", void 0);
 __decorate([
@@ -922,7 +923,7 @@ __decorate([
     __metadata("design:type", Object)
 ], LitSelector.prototype, "selected", void 0);
 LitSelector = __decorate([
-    customElement('lit-selector')
+    customElement("lit-selector")
 ], LitSelector);
 
 export { LitGoogleMap, LitGoogleMapCircle, LitGoogleMapMarker, LitGoogleMapPolygon, LitGoogleMapsApi, LitSelector };

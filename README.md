@@ -6,7 +6,6 @@ This project is a fork of [lit-google-map](https://github.com/arkadiuszwojcik/li
 - add marker `mouseover` and `mouseout` events
 - fix marker `icon` attribute not being updateable live
 - update dependencies and keep current with Dependabot
-- add `fit-to-markers-delay` to workaround Google Map bug that resizes to the entire world if map is in background (eg behind a modal)
 - add `omit-from-fit` to markers. This lets you add more markers to display on the map that won't affect the sizing of the bounds box
 
 ## Table of contents
@@ -88,7 +87,6 @@ or/and shapes:
 - '_styles_' - Map styles in json format (optional)
 - '_zoom_' - Zoom level (default: '8')
 - '_fit-to-markers_' - Fit map area to display all markers
-- '_fit-to-markers-delay_' - Delay before fitting map area to markers
 - '_map-type_' - Map type to display: 'roadmap', 'satellite', 'hybrid', 'terrain'
 - '_center-latitude_'- Latitude of map initial center point
 - '_center-longitude_' - Longitude of map initial center point
