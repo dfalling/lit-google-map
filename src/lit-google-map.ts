@@ -39,12 +39,6 @@ export class LitGoogleMap extends LitElement {
   fitToMarkers: boolean = false;
 
   /**
-   * How long to delay before fitting the map to markers.
-   */
-  @property({ type: Number, attribute: "fit-to-markers-delay" })
-  fitToMarkersDelay: number = 0;
-
-  /**
    * Map type to display. One of 'roadmap', 'satellite', 'hybrid', 'terrain'.
    */
   @property({ type: String, attribute: "map-type" })
@@ -243,9 +237,7 @@ export class LitGoogleMap extends LitElement {
 
       // For one marker, don't alter zoom, just center it.
       if (markers.length > 1) {
-        setTimeout(() => {
-          this.map.fitBounds(latLngBounds, 0);
-        }, this.fitToMarkersDelay);
+        this.map.fitBounds(latLngBounds, 0);
       }
 
       this.map.setCenter(latLngBounds.getCenter());
