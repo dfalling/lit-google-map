@@ -657,9 +657,17 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
     fitToMarkersChanged() {
         const markers = this.markers.filter((m) => !m.omitFromFit);
         if (this.map && this.fitToMarkers && markers.length > 0) {
-            var latLngBounds = new google.maps.LatLngBounds();
+            const latLngBounds = new google.maps.LatLngBounds();
             for (var marker of markers) {
                 latLngBounds.extend(new google.maps.LatLng(marker.latitude, marker.longitude));
+            }
+            const domDimensions = this.getBoundingClientRect();
+            if (domDimensions.width === 0 || domDimensions.height === 0) {
+                console.log("bad dimensions, retrying");
+                setTimeout(() => {
+                    this.fitToMarkersChanged();
+                }, 100);
+                return;
             }
             if (markers.length > 1) {
                 this.map.fitBounds(latLngBounds, 0);
@@ -670,9 +678,13 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
     checkBoundsChanged(oldMarkers, newMarkers) {
         const addedInBounds = newMarkers.filter((m) => {
             return (!m.omitFromFit &&
-                (!oldMarkers || oldMarkers.indexOf(m) === -1));
+                (!oldMarkers || !oldMarkers.includes(m)));
         });
-        return addedInBounds.length > 0;
+        const removedInBounds = oldMarkers === null || oldMarkers === void 0 ? void 0 : oldMarkers.filter((m) => {
+            return (!m.omitFromFit &&
+                (!newMarkers || !newMarkers.includes(m)));
+        });
+        return addedInBounds.length > 0 || removedInBounds.length > 0;
     }
     deselectMarker(event) { }
     deselectShape(event) { }

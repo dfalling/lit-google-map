@@ -225,7 +225,7 @@ export class LitGoogleMap extends LitElement {
       (m) => !(m as LitGoogleMapMarker).omitFromFit
     );
     if (this.map && this.fitToMarkers && markers.length > 0) {
-      var latLngBounds = new google.maps.LatLngBounds();
+      const latLngBounds = new google.maps.LatLngBounds();
       for (var marker of markers) {
         latLngBounds.extend(
           new google.maps.LatLng(
@@ -235,11 +235,21 @@ export class LitGoogleMap extends LitElement {
         );
       }
 
+      // fitBounds while the map has no width or height will zoom out to the whole world.
+      // We have to wait for valid dimensions before fitting bounds.
+      const domDimensions = this.getBoundingClientRect();
+      if (domDimensions.width === 0 || domDimensions.height === 0) {
+        console.log("Invalid DOM width or height for lit-google-map");
+        setTimeout(() => {
+          this.fitToMarkersChanged();
+        }, 100);
+        return;
+      }
+
       // For one marker, don't alter zoom, just center it.
       if (markers.length > 1) {
         this.map.fitBounds(latLngBounds, 0);
       }
-
       this.map.setCenter(latLngBounds.getCenter());
     }
   }
@@ -250,10 +260,19 @@ export class LitGoogleMap extends LitElement {
         // skip items that are omitted from fit
         !(m as LitGoogleMapMarker).omitFromFit &&
         // if we have no markers, or the item wasn't there before, the bounds need to be updated
-        (!oldMarkers || oldMarkers.indexOf(m) === -1)
+        (!oldMarkers || !oldMarkers.includes(m))
       );
     });
-    return addedInBounds.length > 0;
+    const removedInBounds = oldMarkers?.filter((m) => {
+      return (
+        // skip items that are omitted from fit
+        !(m as LitGoogleMapMarker).omitFromFit &&
+        // if we have no markers, or the item isn't there anymore, the bounds need to be updated
+        (!newMarkers || !newMarkers.includes(m))
+      );
+    });
+
+    return addedInBounds.length > 0 || removedInBounds.length > 0;
   }
 
   deselectMarker(event: Event) {}
