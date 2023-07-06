@@ -14,7 +14,7 @@ export class LitSelector extends LitElement {
   selected: number | string | null = null;
 
   _selection: XSelection<Node> = new XSelection((item, isSelected) =>
-    this.applySelection(item, isSelected)
+    this.applySelection(item, isSelected),
   );
 
   _items: Array<Node> = [];
@@ -33,7 +33,7 @@ export class LitSelector extends LitElement {
         new CustomEvent("selector-items-changed", {
           detail: {},
           composed: true,
-        })
+        }),
       );
     });
 
@@ -97,7 +97,7 @@ export class LitSelector extends LitElement {
           detail: { selected: value, item: item },
           composed: true,
           cancelable: true,
-        })
+        }),
       )
     )
       this.select(value);

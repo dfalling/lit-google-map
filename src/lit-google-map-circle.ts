@@ -51,7 +51,7 @@ export class LitGoogleMapCircle extends LitElement implements Shape {
 
   updateCenter() {
     this.circle?.setCenter(
-      new google.maps.LatLng(this.centerLatitude, this.centerLongitude)
+      new google.maps.LatLng(this.centerLatitude, this.centerLongitude),
     );
   }
 

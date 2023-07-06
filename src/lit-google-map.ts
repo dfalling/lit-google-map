@@ -69,7 +69,7 @@ export class LitGoogleMap extends LitElement {
     }
 
     var gMapApiElement = this.shadowRoot.getElementById(
-      "api"
+      "api",
     ) as LitGoogleMapsApi;
 
     if (gMapApiElement == null || gMapApiElement.libraryLoaded != true) {
@@ -78,7 +78,7 @@ export class LitGoogleMap extends LitElement {
 
     this.map = new google.maps.Map(
       this.shadowRoot.getElementById("map"),
-      this.getMapOptions()
+      this.getMapOptions(),
     );
 
     // bounds and tiles events ported from https://github.com/launchscout/lit-google-map/
@@ -88,7 +88,7 @@ export class LitGoogleMap extends LitElement {
           detail: this.map.getBounds().toJSON(),
           bubbles: true,
           composed: true,
-        })
+        }),
       );
     });
 
@@ -98,7 +98,7 @@ export class LitGoogleMap extends LitElement {
           detail: this.map.getBounds().toJSON(),
           bubbles: true,
           composed: true,
-        })
+        }),
       );
     });
 
@@ -115,10 +115,10 @@ export class LitGoogleMap extends LitElement {
               detail: { placeId: event.placeId },
               bubbles: true,
               composed: true,
-            })
+            }),
           );
         }
-      }
+      },
     );
 
     this.updateMarkers();
@@ -175,7 +175,7 @@ export class LitGoogleMap extends LitElement {
     this.observeMarkers();
 
     const markersSelector = this.shadowRoot.getElementById(
-      "markers-selector"
+      "markers-selector",
     ) as LitSelector;
     if (!markersSelector) return;
 
@@ -209,7 +209,7 @@ export class LitGoogleMap extends LitElement {
 
   updateShapes() {
     var shapesSelector = this.shadowRoot.getElementById(
-      "shapes-selector"
+      "shapes-selector",
     ) as LitSelector;
     if (!shapesSelector) return;
 
@@ -222,7 +222,7 @@ export class LitGoogleMap extends LitElement {
 
   fitToMarkersChanged() {
     const markers = this.markers.filter(
-      (m) => !(m as LitGoogleMapMarker).omitFromFit
+      (m) => !(m as LitGoogleMapMarker).omitFromFit,
     );
     if (this.map && this.fitToMarkers && markers.length > 0) {
       const latLngBounds = new google.maps.LatLngBounds();
@@ -230,8 +230,8 @@ export class LitGoogleMap extends LitElement {
         latLngBounds.extend(
           new google.maps.LatLng(
             (marker as LitGoogleMapMarker).latitude,
-            (marker as LitGoogleMapMarker).longitude
-          )
+            (marker as LitGoogleMapMarker).longitude,
+          ),
         );
       }
 
