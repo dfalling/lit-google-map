@@ -73,19 +73,19 @@ export class LitGoogleMapMarker extends LitElement {
     if (this.open) {
       this.info.open(this.map, this.marker);
       this.dispatchEvent(
-        new CustomEvent("google-map-marker-open", { bubbles: true })
+        new CustomEvent("google-map-marker-open", { bubbles: true }),
       );
     } else {
       this.info.close();
       this.dispatchEvent(
-        new CustomEvent("google-map-marker-close", { bubbles: true })
+        new CustomEvent("google-map-marker-close", { bubbles: true }),
       );
     }
   }
 
   updatePosition() {
     this.marker?.setPosition(
-      new google.maps.LatLng(this.latitude, this.longitude)
+      new google.maps.LatLng(this.latitude, this.longitude),
     );
   }
 
@@ -124,7 +124,7 @@ export class LitGoogleMapMarker extends LitElement {
           detail: { id: this.id },
           bubbles: true,
           composed: true,
-        })
+        }),
       );
     });
 
@@ -134,7 +134,7 @@ export class LitGoogleMapMarker extends LitElement {
           detail: { id: this.id },
           bubbles: true,
           composed: true,
-        })
+        }),
       );
     });
 
@@ -144,7 +144,7 @@ export class LitGoogleMapMarker extends LitElement {
           detail: { id: this.id },
           bubbles: true,
           composed: true,
-        })
+        }),
       );
     });
 
@@ -170,7 +170,7 @@ export class LitGoogleMapMarker extends LitElement {
           "click",
           function () {
             this.open = true;
-          }.bind(this)
+          }.bind(this),
         );
 
         this.closeInfoHandler = google.maps.event.addListener(
@@ -178,7 +178,7 @@ export class LitGoogleMapMarker extends LitElement {
           "closeclick",
           function () {
             this.open = false;
-          }.bind(this)
+          }.bind(this),
         );
       }
       this.info.setContent(content);

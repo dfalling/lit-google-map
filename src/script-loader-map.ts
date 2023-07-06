@@ -13,7 +13,7 @@ export class ScriptLoaderMap {
   public require(
     url: string,
     notifyCallback: notifyCallback,
-    jsonpCallbackName: string
+    jsonpCallbackName: string,
   ) {
     var name = this.nameFromUrl(url);
 
@@ -58,7 +58,7 @@ class ScriptLoader {
         url = url.replace(this.callbackMacro, callbackName);
       } else {
         console.error(
-          "ScriptLoader class: a %%callback%% parameter is required in libraryUrl"
+          "ScriptLoader class: a %%callback%% parameter is required in libraryUrl",
         );
         return;
       }
@@ -107,7 +107,7 @@ class ScriptLoader {
     this.notifiers.forEach(
       function (notifyCallback: notifyCallback) {
         notifyCallback(this.error, this.result);
-      }.bind(this)
+      }.bind(this),
     );
     this.notifiers = [];
   }

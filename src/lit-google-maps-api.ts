@@ -31,7 +31,7 @@ abstract class JsonpLibraryElement extends LitElement {
       this.libraryLoaded = true;
       if (this.notifyEvent != null) {
         this.dispatchEvent(
-          new CustomEvent(this.notifyEvent, { detail: detail, composed: true })
+          new CustomEvent(this.notifyEvent, { detail: detail, composed: true }),
         );
       }
     }
@@ -42,7 +42,7 @@ abstract class JsonpLibraryElement extends LitElement {
     ScriptLoaderMap.getInstance().require(
       this.libraryUrl,
       this.libraryLoadCallback.bind(this),
-      this.callbackName
+      this.callbackName,
     );
   }
 
@@ -81,7 +81,7 @@ export class LitGoogleMapsApi extends JsonpLibraryElement {
       this.apiKey,
       this.clientId,
       this.language,
-      this.mapId
+      this.mapId,
     );
   }
 
@@ -95,7 +95,7 @@ export class LitGoogleMapsApi extends JsonpLibraryElement {
     apiKey: string,
     clientId: string,
     language: string,
-    mapId: string
+    mapId: string,
   ): string {
     var url = mapsUrl + "&v=" + version;
 
