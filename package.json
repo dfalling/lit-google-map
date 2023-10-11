@@ -33,7 +33,7 @@
     "lint": "npx prettier --check ."
   },
   "dependencies": {
-    "lit": "^2.6.1",
+    "lit": "^3.0.0",
     "tslib": "^2.5.0"
   },
   "devDependencies": {
