@@ -16,8 +16,8 @@
 
     // Modules
     "module": "ES2015",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
   },
   "include": ["src/**/*.ts"],
-  "exclude": []
+  "exclude": [],
 }
