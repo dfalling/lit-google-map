@@ -30,7 +30,8 @@
   "scripts": {
     "build": "tsc",
     "bundle": "npm run build && rollup -c",
-    "lint": "npx prettier --check ."
+    "lint": "npx prettier --check .",
+    "prettier": "prettier . --write"
   },
   "dependencies": {
     "lit": "^3.0.0",
