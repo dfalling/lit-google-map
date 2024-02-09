@@ -654,7 +654,7 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
             s.attachToMap(this.map);
         }
     }
-    fitToMarkersChanged() {
+    fitToMarkersChanged(retryAttempt = 0) {
         const markers = this.markers.filter((m) => !m.omitFromFit);
         if (this.map && this.fitToMarkers && markers.length > 0) {
             const latLngBounds = new google.maps.LatLngBounds();
@@ -663,10 +663,11 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
             }
             const domDimensions = this.getBoundingClientRect();
             if (domDimensions.width === 0 || domDimensions.height === 0) {
-                console.log("bad dimensions, retrying");
+                console.log("Invalid DOM width or height for lit-google-map");
+                const timeout = 2 ** retryAttempt * 100;
                 setTimeout(() => {
-                    this.fitToMarkersChanged();
-                }, 100);
+                    this.fitToMarkersChanged(retryAttempt + 1);
+                }, timeout);
                 return;
             }
             if (markers.length > 1) {
