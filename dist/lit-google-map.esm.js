@@ -142,8 +142,7 @@ let LitGoogleMapsApi = class LitGoogleMapsApi extends JsonpLibraryElement {
     }
     computeUrl(mapsUrl, version, apiKey, clientId, language, mapId) {
         var url = mapsUrl + "&v=" + version;
-        url += "&libraries=drawing,geometry,places,visualization";
-        url += "&libraries=marker";
+        url += "&libraries=drawing,geometry,places,visualization,marker";
         if (apiKey && !clientId) {
             url += "&key=" + apiKey;
         }
