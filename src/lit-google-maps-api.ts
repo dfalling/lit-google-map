@@ -102,6 +102,10 @@ export class LitGoogleMapsApi extends JsonpLibraryElement {
     // Always load all Maps API libraries.
     url += "&libraries=drawing,geometry,places,visualization";
 
+    // Google Maps now requires loading marker library
+    // https://developers.google.com/maps/documentation/javascript/advanced-markers/migration
+    url += "&libraries=marker";
+
     if (apiKey && !clientId) {
       url += "&key=" + apiKey;
     }

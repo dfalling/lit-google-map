@@ -212,6 +212,7 @@
       computeUrl(mapsUrl, version, apiKey, clientId, language, mapId) {
           var url = mapsUrl + "&v=" + version;
           url += "&libraries=drawing,geometry,places,visualization";
+          url += "&libraries=marker";
           if (apiKey && !clientId) {
               url += "&key=" + apiKey;
           }
@@ -266,17 +267,20 @@
           super(...arguments);
           this.latitude = 0;
           this.longitude = 0;
-          this.label = null;
           this.zIndex = 0;
           this.open = false;
-          this.icon = null;
           this.id = null;
+          this.glyph = null;
+          this.glyphColor = null;
+          this.background = null;
+          this.borderColor = null;
+          this.scale = null;
           this.omitFromFit = false;
           this.map = null;
           this.marker = null;
+          this.pin = null;
       }
       attributeChangedCallback(name, oldval, newval) {
-          var _a, _b, _c;
           super.attributeChangedCallback(name, oldval, newval);
           switch (name) {
               case "open": {
@@ -291,16 +295,40 @@
                   this.updatePosition();
                   break;
               }
-              case "label": {
-                  (_a = this.marker) === null || _a === void 0 ? void 0 : _a.setLabel(this.label);
+              case "glyph": {
+                  if (this.pin) {
+                      this.pin.glyph = this.glyph;
+                  }
                   break;
               }
-              case "icon": {
-                  (_b = this.marker) === null || _b === void 0 ? void 0 : _b.setIcon(this.icon);
+              case "glyphColor": {
+                  if (this.pin) {
+                      this.pin.glyphColor = this.glyphColor;
+                  }
+                  break;
+              }
+              case "background": {
+                  if (this.pin) {
+                      this.pin.background = this.background;
+                  }
+                  break;
+              }
+              case "borderColor": {
+                  if (this.pin) {
+                      this.pin.borderColor = this.borderColor;
+                  }
+                  break;
+              }
+              case "scale": {
+                  if (this.pin) {
+                      this.pin.scale = this.scale;
+                  }
                   break;
               }
               case "z-index": {
-                  (_c = this.marker) === null || _c === void 0 ? void 0 : _c.setZIndex(this.zIndex);
+                  if (this.marker) {
+                      this.marker.zIndex = this.zIndex;
+                  }
                   break;
               }
           }
@@ -318,8 +346,9 @@
           }
       }
       updatePosition() {
-          var _a;
-          (_a = this.marker) === null || _a === void 0 ? void 0 : _a.setPosition(new google.maps.LatLng(this.latitude, this.longitude));
+          if (this.marker) {
+              this.marker.position = new google.maps.LatLng(this.latitude, this.longitude);
+          }
       }
       changeMap(newMap) {
           this.map = newMap;
@@ -327,7 +356,7 @@
       }
       mapChanged() {
           if (this.marker) {
-              this.marker.setMap(null);
+              this.marker.map = null;
               google.maps.event.clearInstanceListeners(this.marker);
           }
           if (this.map && this.map instanceof google.maps.Map) {
@@ -335,31 +364,37 @@
           }
       }
       mapReady() {
-          this.marker = new google.maps.Marker({
+          this.pin = new google.maps.marker.PinElement({
+              glyph: this.glyph,
+              glyphColor: this.glyphColor,
+              background: this.background,
+              borderColor: this.borderColor,
+              scale: this.scale,
+          });
+          this.marker = new google.maps.marker.AdvancedMarkerElement({
               map: this.map,
-              icon: this.icon,
               position: {
                   lat: this.latitude,
                   lng: this.longitude,
               },
-              label: this.label,
+              content: this.pin.element,
               zIndex: this.zIndex,
           });
-          this.marker.addListener("mouseover", () => {
+          this.marker.content.addEventListener("mouseover", () => {
               this.dispatchEvent(new CustomEvent("mouseover", {
                   detail: { id: this.id },
                   bubbles: true,
                   composed: true,
               }));
           });
-          this.marker.addListener("mouseout", () => {
+          this.marker.content.addEventListener("mouseout", () => {
               this.dispatchEvent(new CustomEvent("mouseout", {
                   detail: { id: this.id },
                   bubbles: true,
                   composed: true,
               }));
           });
-          this.marker.addListener("click", () => {
+          this.marker.content.addEventListener("click", () => {
               this.dispatchEvent(new CustomEvent("click", {
                   detail: { id: this.id },
                   bubbles: true,
@@ -407,10 +442,6 @@
       __metadata("design:type", Number)
   ], exports.LitGoogleMapMarker.prototype, "longitude", void 0);
   __decorate([
-      n({ type: String, reflect: true }),
-      __metadata("design:type", String)
-  ], exports.LitGoogleMapMarker.prototype, "label", void 0);
-  __decorate([
       n({ type: Number, reflect: true, attribute: "z-index" }),
       __metadata("design:type", Number)
   ], exports.LitGoogleMapMarker.prototype, "zIndex", void 0);
@@ -421,11 +452,27 @@
   __decorate([
       n({ type: String, reflect: true }),
       __metadata("design:type", String)
-  ], exports.LitGoogleMapMarker.prototype, "icon", void 0);
+  ], exports.LitGoogleMapMarker.prototype, "id", void 0);
   __decorate([
       n({ type: String, reflect: true }),
       __metadata("design:type", String)
-  ], exports.LitGoogleMapMarker.prototype, "id", void 0);
+  ], exports.LitGoogleMapMarker.prototype, "glyph", void 0);
+  __decorate([
+      n({ type: String, reflect: true }),
+      __metadata("design:type", String)
+  ], exports.LitGoogleMapMarker.prototype, "glyphColor", void 0);
+  __decorate([
+      n({ type: String, reflect: true }),
+      __metadata("design:type", String)
+  ], exports.LitGoogleMapMarker.prototype, "background", void 0);
+  __decorate([
+      n({ type: String, reflect: true }),
+      __metadata("design:type", String)
+  ], exports.LitGoogleMapMarker.prototype, "borderColor", void 0);
+  __decorate([
+      n({ type: Number, reflect: true }),
+      __metadata("design:type", Number)
+  ], exports.LitGoogleMapMarker.prototype, "scale", void 0);
   __decorate([
       n({ type: Boolean, attribute: "omit-from-fit" }),
       __metadata("design:type", Boolean)
@@ -612,7 +659,7 @@
           this.centerLatitude = -34.397;
           this.centerLongitude = 150.644;
           this.language = "";
-          this.mapId = "";
+          this.mapId = "DEMO_MAP_ID";
           this.map = null;
       }
       initGMap() {

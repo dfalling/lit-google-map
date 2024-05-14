@@ -9,9 +9,6 @@ export class LitGoogleMapMarker extends LitElement {
   @property({ type: Number, reflect: true })
   longitude: number = 0;
 
-  @property({ type: String, reflect: true })
-  label: string | null = null;
-
   @property({ type: Number, reflect: true, attribute: "z-index" })
   zIndex: number = 0;
 
@@ -19,10 +16,22 @@ export class LitGoogleMapMarker extends LitElement {
   open: boolean = false;
 
   @property({ type: String, reflect: true })
-  icon: string | null = null;
+  id: string | null = null;
 
   @property({ type: String, reflect: true })
-  id: string | null = null;
+  glyph: string | null = null;
+
+  @property({ type: String, reflect: true })
+  glyphColor: string | null = null;
+
+  @property({ type: String, reflect: true })
+  background: string | null = null;
+
+  @property({ type: String, reflect: true })
+  borderColor: string | null = null;
+
+  @property({ type: Number, reflect: true })
+  scale: number = null;
 
   /**
    * If set, the marker will not be used to calculate the map's bounds.
@@ -31,7 +40,8 @@ export class LitGoogleMapMarker extends LitElement {
   omitFromFit: boolean = false;
 
   map: google.maps.Map = null;
-  marker: google.maps.Marker = null;
+  marker: google.maps.marker.AdvancedMarkerElement = null;
+  pin: google.maps.marker.PinElement = null;
   info: google.maps.InfoWindow;
   contentObserver: MutationObserver;
   openInfoHandler: google.maps.MapsEventListener;
@@ -52,16 +62,40 @@ export class LitGoogleMapMarker extends LitElement {
         this.updatePosition();
         break;
       }
-      case "label": {
-        this.marker?.setLabel(this.label);
+      case "glyph": {
+        if (this.pin) {
+          this.pin.glyph = this.glyph;
+        }
         break;
       }
-      case "icon": {
-        this.marker?.setIcon(this.icon);
+      case "glyphColor": {
+        if (this.pin) {
+          this.pin.glyphColor = this.glyphColor;
+        }
+        break;
+      }
+      case "background": {
+        if (this.pin) {
+          this.pin.background = this.background;
+        }
+        break;
+      }
+      case "borderColor": {
+        if (this.pin) {
+          this.pin.borderColor = this.borderColor;
+        }
+        break;
+      }
+      case "scale": {
+        if (this.pin) {
+          this.pin.scale = this.scale;
+        }
         break;
       }
       case "z-index": {
-        this.marker?.setZIndex(this.zIndex);
+        if (this.marker) {
+          this.marker.zIndex = this.zIndex;
+        }
         break;
       }
     }
@@ -84,9 +118,12 @@ export class LitGoogleMapMarker extends LitElement {
   }
 
   updatePosition() {
-    this.marker?.setPosition(
-      new google.maps.LatLng(this.latitude, this.longitude),
-    );
+    if (this.marker) {
+      this.marker.position = new google.maps.LatLng(
+        this.latitude,
+        this.longitude,
+      );
+    }
   }
 
   changeMap(newMap: google.maps.Map) {
@@ -97,7 +134,7 @@ export class LitGoogleMapMarker extends LitElement {
   mapChanged() {
     // Marker will be rebuilt, so disconnect existing one from old map and listeners.
     if (this.marker) {
-      this.marker.setMap(null);
+      this.marker.map = null;
       google.maps.event.clearInstanceListeners(this.marker);
     }
 
@@ -107,18 +144,24 @@ export class LitGoogleMapMarker extends LitElement {
   }
 
   mapReady() {
-    this.marker = new google.maps.Marker({
+    this.pin = new google.maps.marker.PinElement({
+      glyph: this.glyph,
+      glyphColor: this.glyphColor,
+      background: this.background,
+      borderColor: this.borderColor,
+      scale: this.scale,
+    });
+    this.marker = new google.maps.marker.AdvancedMarkerElement({
       map: this.map,
-      icon: this.icon,
       position: {
         lat: this.latitude,
         lng: this.longitude,
       },
-      label: this.label,
+      content: this.pin.element,
       zIndex: this.zIndex,
     });
 
-    this.marker.addListener("mouseover", () => {
+    this.marker.content.addEventListener("mouseover", () => {
       this.dispatchEvent(
         new CustomEvent("mouseover", {
           detail: { id: this.id },
@@ -128,7 +171,7 @@ export class LitGoogleMapMarker extends LitElement {
       );
     });
 
-    this.marker.addListener("mouseout", () => {
+    this.marker.content.addEventListener("mouseout", () => {
       this.dispatchEvent(
         new CustomEvent("mouseout", {
           detail: { id: this.id },
@@ -138,7 +181,7 @@ export class LitGoogleMapMarker extends LitElement {
       );
     });
 
-    this.marker.addListener("click", () => {
+    this.marker.content.addEventListener("click", () => {
       this.dispatchEvent(
         new CustomEvent("click", {
           detail: { id: this.id },
