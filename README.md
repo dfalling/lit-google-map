@@ -7,6 +7,7 @@ This project is a fork of [lit-google-map](https://github.com/arkadiuszwojcik/li
 - fix marker `icon` attribute not being updateable live
 - update dependencies and keep current with Dependabot
 - add `omit-from-fit` to markers. This lets you add more markers to display on the map that won't affect the sizing of the bounds box
+- move to [AdvancedMarkerElement](https://developers.google.com/maps/documentation/javascript/advanced-markers/migration)
 
 ## Table of contents
 
@@ -121,10 +122,13 @@ Example:
 - '_latitude_' - Marker latitude position
 - '_longitude_' - Marker longitude position
 - '_omit-from-fit_' - Don't include marker when fitting map bounds to markers
-- '_label_' - Marker label
 - '_z-index_' - Marker z index
-- '_icon_' - Marker icon image url
 - '_id_' - Use with Marker events to identify the source
+- '_glyph_' - Glyph in center of pin
+- '_glyphColor_' - Glyph color
+- '_background_' - Background color of pin
+- '_borderColor_' - Border color of pin
+- '_scale_' - Scale of pin
 
 Example:
 

@@ -100,7 +100,7 @@ export class LitGoogleMapsApi extends JsonpLibraryElement {
     var url = mapsUrl + "&v=" + version;
 
     // Always load all Maps API libraries.
-    url += "&libraries=drawing,geometry,places,visualization";
+    url += "&libraries=drawing,geometry,places,visualization,marker";
 
     if (apiKey && !clientId) {
       url += "&key=" + apiKey;

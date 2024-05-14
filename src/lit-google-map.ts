@@ -53,8 +53,9 @@ export class LitGoogleMap extends LitElement {
   @property({ type: String })
   language: string = "";
 
+  // mapId is required for use of AdvancedMarkerElement
   @property({ type: String, attribute: "map-id" })
-  mapId: string = "";
+  mapId: string = "DEMO_MAP_ID";
 
   map: google.maps.Map = null;
 
