@@ -48,13 +48,14 @@ class ScriptLoader {
 	constructor(name: string, url: string, callbackName: string) {
 		this.notifiers = [];
 		let scriptUrl = url;
+		let scriptCallbackName = callbackName;
 
 		// callback is specified either as callback name
 		// or computed dynamically if url has callbackMacro in it
-		if (!callbackName) {
+		if (!scriptCallbackName) {
 			if (scriptUrl.indexOf(this.callbackMacro) >= 0) {
-				const fallbackCallbackName = `${name}_loaded`;
-				scriptUrl = scriptUrl.replace(this.callbackMacro, fallbackCallbackName);
+				scriptCallbackName = `${name}_loaded`;
+				scriptUrl = scriptUrl.replace(this.callbackMacro, scriptCallbackName);
 			} else {
 				console.error(
 					"ScriptLoader class: a %%callback%% parameter is required in libraryUrl",
@@ -63,7 +64,7 @@ class ScriptLoader {
 			}
 		}
 
-		this.callbackName = callbackName;
+		this.callbackName = scriptCallbackName;
 		window[this.callbackName] = this.success.bind(this);
 		this.addScript(scriptUrl);
 	}
