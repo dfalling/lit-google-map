@@ -159,9 +159,10 @@ export class LitGoogleMapMarker extends LitElement {
 			},
 			content: this.pin.element,
 			zIndex: this.zIndex,
+			gmpClickable: true,
 		});
 
-		this.marker.content.addEventListener("mouseover", () => {
+		this.pin.element.addEventListener("mouseover", () => {
 			this.dispatchEvent(
 				new CustomEvent("mouseover", {
 					detail: { id: this.id },
@@ -171,7 +172,7 @@ export class LitGoogleMapMarker extends LitElement {
 			);
 		});
 
-		this.marker.content.addEventListener("mouseout", () => {
+		this.pin.element.addEventListener("mouseout", () => {
 			this.dispatchEvent(
 				new CustomEvent("mouseout", {
 					detail: { id: this.id },
@@ -181,7 +182,7 @@ export class LitGoogleMapMarker extends LitElement {
 			);
 		});
 
-		this.marker.content.addEventListener("click", () => {
+		this.marker.addListener("click", () => {
 			this.dispatchEvent(
 				new CustomEvent("click", {
 					detail: { id: this.id },
