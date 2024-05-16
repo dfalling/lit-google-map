@@ -69,11 +69,11 @@ export class LitGoogleMap extends LitElement {
 			return; // already initialized
 		}
 
-		var gMapApiElement = this.shadowRoot.getElementById(
+		const gMapApiElement = this.shadowRoot.getElementById(
 			"api",
 		) as LitGoogleMapsApi;
 
-		if (gMapApiElement == null || gMapApiElement.libraryLoaded != true) {
+		if (gMapApiElement == null || gMapApiElement.libraryLoaded !== true) {
 			return;
 		}
 
@@ -187,7 +187,7 @@ export class LitGoogleMap extends LitElement {
 			const added = newMarkers.filter((m) => {
 				return this.markers && this.markers.indexOf(m) === -1;
 			});
-			if (added.length == 0) return;
+			if (added.length === 0) return;
 		}
 
 		const boundsChanged = this.checkBoundsChanged(this.markers, newMarkers);
@@ -209,7 +209,7 @@ export class LitGoogleMap extends LitElement {
 	}
 
 	updateShapes() {
-		var shapesSelector = this.shadowRoot.getElementById(
+		const shapesSelector = this.shadowRoot.getElementById(
 			"shapes-selector",
 		) as LitSelector;
 		if (!shapesSelector) return;
@@ -227,7 +227,7 @@ export class LitGoogleMap extends LitElement {
 		);
 		if (this.map && this.fitToMarkers && markers.length > 0) {
 			const latLngBounds = new google.maps.LatLngBounds();
-			for (var marker of markers) {
+			for (const marker of markers) {
 				latLngBounds.extend(
 					new google.maps.LatLng(
 						(marker as LitGoogleMapMarker).latitude,

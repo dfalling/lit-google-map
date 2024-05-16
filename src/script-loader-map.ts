@@ -1,4 +1,4 @@
-export type notifyCallback = (error: Error, result: any) => void;
+export type notifyCallback = (error: Error, result: unknown) => void;
 
 interface Dictionary<T> {
 	[Key: string]: T;
@@ -13,7 +13,7 @@ export class ScriptLoaderMap {
 		notifyCallback: notifyCallback,
 		jsonpCallbackName: string,
 	) {
-		var name = this.nameFromUrl(url);
+		const name = this.nameFromUrl(url);
 
 		// create a loader as needed
 		if (!this.apiMap[name])
@@ -32,13 +32,13 @@ export class ScriptLoaderMap {
 	}
 
 	private nameFromUrl(url: string): string {
-		return url.replace(/[\:\/\%\?\&\.\=\-\,]/g, "_") + "_api";
+		return `${url.replace(/[\:\/\%\?\&\.\=\-\,]/g, "_")}_api`;
 	}
 }
 
 class ScriptLoader {
 	error: Error;
-	result: any;
+	result: unknown;
 	notifiers: Array<notifyCallback>;
 	callbackName: string;
 	callbackMacro = "%%callback%%";
@@ -47,13 +47,14 @@ class ScriptLoader {
 
 	constructor(name: string, url: string, callbackName: string) {
 		this.notifiers = [];
+		let scriptUrl = url;
 
 		// callback is specified either as callback name
 		// or computed dynamically if url has callbackMacro in it
 		if (!callbackName) {
-			if (url.indexOf(this.callbackMacro) >= 0) {
-				callbackName = name + "_loaded";
-				url = url.replace(this.callbackMacro, callbackName);
+			if (scriptUrl.indexOf(this.callbackMacro) >= 0) {
+				const fallbackCallbackName = `${name}_loaded`;
+				scriptUrl = scriptUrl.replace(this.callbackMacro, fallbackCallbackName);
 			} else {
 				console.error(
 					"ScriptLoader class: a %%callback%% parameter is required in libraryUrl",
@@ -63,16 +64,15 @@ class ScriptLoader {
 		}
 
 		this.callbackName = callbackName;
-		(window as { [key: string]: any })[this.callbackName] =
-			this.success.bind(this);
-		this.addScript(url);
+		window[this.callbackName] = this.success.bind(this);
+		this.addScript(scriptUrl);
 	}
 
 	addScript(src: string) {
-		var script = document.createElement("script");
+		const script = document.createElement("script");
 		script.src = src;
 		script.onerror = this.handleError.bind(this);
-		var s = document.querySelector("script") || document.body;
+		const s = document.querySelector("script") || document.body;
 		s.parentNode.insertBefore(script, s);
 		this.script = script;
 	}
@@ -90,15 +90,15 @@ class ScriptLoader {
 		this.cleanup();
 	}
 
-	success() {
+	success(...rest) {
 		this.loaded = true;
-		this.result = Array.prototype.slice.call(arguments);
+		this.result = rest;
 		this.notifyAll();
 		this.cleanup();
 	}
 
 	cleanup() {
-		delete (window as { [key: string]: any })[this.callbackName];
+		delete window[this.callbackName];
 	}
 
 	notifyAll() {

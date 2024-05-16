@@ -203,7 +203,7 @@ export class LitGoogleMapMarker extends LitElement {
 			subtree: true,
 		});
 
-		var content = this.innerHTML.trim();
+		const content = this.innerHTML.trim();
 		if (content) {
 			if (!this.info) {
 				this.info = new google.maps.InfoWindow();

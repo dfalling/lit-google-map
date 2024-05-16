@@ -45,7 +45,7 @@ export class LitSelector extends LitElement {
 		this.removeListener(this.activateEvent);
 	}
 
-	attributeChangedCallback(name: string, oldval: any, newval: any) {
+	attributeChangedCallback(name: string, oldval: string, newval: string) {
 		super.attributeChangedCallback(name, oldval, newval);
 		switch (name) {
 			case "selected": {
@@ -57,13 +57,13 @@ export class LitSelector extends LitElement {
 
 	applySelection(item: Node, isSelected: boolean) {
 		if (this.selectedAttribute && item instanceof Element) {
-			if (isSelected != (item as Element).hasAttribute(this.selectedAttribute))
+			if (isSelected !== (item as Element).hasAttribute(this.selectedAttribute))
 				(item as Element).toggleAttribute(this.selectedAttribute);
 		}
 	}
 
 	updateItems() {
-		var slotElement = this.querySelector("slot");
+		const slotElement = this.querySelector("slot");
 		this._items = slotElement?.assignedNodes() ?? [];
 	}
 
@@ -76,12 +76,12 @@ export class LitSelector extends LitElement {
 	}
 
 	activateHandler(event: Event) {
-		var t = event.target as Node;
-		var items = this.items;
-		while (t && t != this) {
-			var i = items.indexOf(t);
+		let t = event.target as Node;
+		const items = this.items;
+		while (t && t !== this) {
+			const i = items.indexOf(t);
 			if (i >= 0) {
-				var value = this.indexToValue(i);
+				const value = this.indexToValue(i);
 				this.itemActivate(value, t);
 				return;
 			}
@@ -90,7 +90,7 @@ export class LitSelector extends LitElement {
 		}
 	}
 
-	itemActivate(value: any, item: any) {
+	itemActivate(value: string | number, item: unknown) {
 		if (
 			this.dispatchEvent(
 				new CustomEvent("selector-item-activate", {
@@ -103,7 +103,7 @@ export class LitSelector extends LitElement {
 			this.select(value);
 	}
 
-	select(value: any) {
+	select(value: number | string | null) {
 		this.selected = value;
 	}
 
@@ -114,7 +114,7 @@ export class LitSelector extends LitElement {
 	selectSelected(selected: number | string | null) {
 		if (!this._items) return;
 
-		var item = this.valueToItem(this.selected);
+		const item = this.valueToItem(this.selected);
 		if (item) {
 			this._selection.select(item);
 		} else {
@@ -130,7 +130,7 @@ export class LitSelector extends LitElement {
 		return Number(value);
 	}
 
-	indexToValue(index: number): any {
+	indexToValue(index: number): number | string {
 		return index;
 	}
 

@@ -22,7 +22,7 @@ abstract class JsonpLibraryElement extends LitElement {
 		if (this.isReady && this.libraryUrl != null) this.loadLibrary();
 	}
 
-	libraryLoadCallback(error: Error, detail: any) {
+	libraryLoadCallback(error: Error, detail: unknown) {
 		if (error) {
 			console.warn("Library load failed:", error.message);
 			this.libraryErrorMessage = error.message;
@@ -97,22 +97,22 @@ export class LitGoogleMapsApi extends JsonpLibraryElement {
 		language: string,
 		mapId: string,
 	): string {
-		var url = mapsUrl + "&v=" + version;
+		let url = `${mapsUrl}&v=${version}`;
 
 		// Always load all Maps API libraries.
 		url += "&libraries=drawing,geometry,places,visualization,marker";
 
 		if (apiKey && !clientId) {
-			url += "&key=" + apiKey;
+			url += `&key=${apiKey}`;
 		}
 
 		if (clientId) {
-			url += "&client=" + clientId;
+			url += `&client=${clientId}`;
 		}
 
 		// Log a warning if the user is not using an API Key or Client ID.
 		if (!apiKey && !clientId) {
-			var warning =
+			const warning =
 				"No Google Maps API Key or Client ID specified. " +
 				"See https://developers.google.com/maps/documentation/javascript/get-api-key " +
 				"for instructions to get started with a key or client id.";
@@ -120,11 +120,11 @@ export class LitGoogleMapsApi extends JsonpLibraryElement {
 		}
 
 		if (language) {
-			url += "&language=" + language;
+			url += `&language=${language}`;
 		}
 
 		if (mapId) {
-			url += "&map_ids=" + mapId;
+			url += `&map_ids=${mapId}`;
 		}
 
 		return url;

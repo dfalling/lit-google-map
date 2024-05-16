@@ -14,10 +14,10 @@ export class XSelection<TItem> {
 	}
 
 	clear(excludes?: Array<TItem>) {
-		this.selection.slice().forEach((item) => {
+		for (const item of this.selection.slice()) {
 			if (!excludes || excludes.indexOf(item) < 0)
 				this.setItemSelected(item, false);
-		});
+		}
 	}
 
 	isSelected(item: TItem): boolean {
@@ -25,12 +25,12 @@ export class XSelection<TItem> {
 	}
 
 	setItemSelected(item: TItem, isSelected: boolean) {
-		if (item == null || isSelected == this.isSelected(item)) return;
+		if (item == null || isSelected === this.isSelected(item)) return;
 
 		if (isSelected) {
 			this.selection.push(item);
 		} else {
-			var i = this.selection.indexOf(item);
+			const i = this.selection.indexOf(item);
 			if (i >= 0) {
 				this.selection.splice(i, 1);
 			}
