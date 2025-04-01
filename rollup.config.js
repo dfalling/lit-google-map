@@ -1,5 +1,5 @@
 import resolve from "@rollup/plugin-node-resolve";
-import { terser } from "rollup-plugin-terser";
+import terser from "@rollup/plugin-terser";
 
 export default [
   {
@@ -8,10 +8,12 @@ export default [
       {
         file: "dist/lit-google-map.bundle.js",
         format: "iife",
+        name: "LitGoogleMap",
       },
       {
         file: "dist/lit-google-map.bundle.min.js",
         format: "iife",
+        name: "LitGoogleMap",
         plugins: [terser()],
       },
     ],
