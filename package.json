@@ -29,7 +29,7 @@
   "typings": "*.d.ts",
   "scripts": {
     "build": "tsc",
-    "bundle": "npm run build && rollup -c",
+    "bundle": "npm run build && rollup -c --bundleConfigAsCjs",
     "lint": "npx @biomejs/biome check src",
     "format": "npx @biomejs/biome check --apply src"
   },
