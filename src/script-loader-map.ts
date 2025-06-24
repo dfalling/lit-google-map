@@ -32,7 +32,7 @@ export class ScriptLoaderMap {
   }
 
   private nameFromUrl(url: string): string {
-    return `${url.replace(/[\:\/\%\?\&\.\=\-\,]/g, "_")}_api`;
+    return `${url.replace(/[:/%?&.=\-,]/g, "_")}_api`;
   }
 }
 
@@ -85,7 +85,7 @@ class ScriptLoader {
     this.script = null;
   }
 
-  handleError(ev: OnErrorEventHandlerNonNull) {
+  handleError(_ev: OnErrorEventHandlerNonNull) {
     this.error = new Error("Library failed to load");
     this.notifyAll();
     this.cleanup();
