@@ -30,8 +30,8 @@
   "scripts": {
     "build": "tsc",
     "bundle": "npm run build && rollup -c --bundleConfigAsCjs",
-    "lint": "npx @biomejs/biome check src",
-    "format": "npx @biomejs/biome check --apply src"
+    "lint": "biome check src",
+    "format": "biome check --fix --unsafe src"
   },
   "dependencies": {
     "lit": "^3.1.3",

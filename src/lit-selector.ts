@@ -111,7 +111,7 @@ export class LitSelector extends LitElement {
     this.selectSelected(this.selected);
   }
 
-  selectSelected(selected: number | string | null) {
+  selectSelected(_selected: number | string | null) {
     if (!this._items) return;
 
     const item = this.valueToItem(this.selected);
