@@ -461,14 +461,14 @@ let LitGoogleMapMarker = class LitGoogleMapMarker extends LitElement {
             zIndex: this.zIndex,
             gmpClickable: true,
         });
-        this.marker.addListener("mouseover", () => {
+        this.marker.element.addEventListener("mouseover", () => {
             this.dispatchEvent(new CustomEvent("mouseover", {
                 detail: { id: this.id },
                 bubbles: true,
                 composed: true,
             }));
         });
-        this.marker.addListener("mouseout", () => {
+        this.marker.element.addEventListener("mouseout", () => {
             this.dispatchEvent(new CustomEvent("mouseout", {
                 detail: { id: this.id },
                 bubbles: true,
