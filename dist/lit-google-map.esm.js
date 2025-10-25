@@ -1,583 +1,6 @@
 import { __decorate, __metadata } from 'tslib';
-import { LitElement, css, html } from 'lit';
+import { css, LitElement, html } from 'lit';
 import { property, customElement } from 'lit/decorators.js';
-
-class ScriptLoaderMap {
-    constructor() {
-        this.apiMap = {};
-    }
-    require(url, notifyCallback, jsonpCallbackName) {
-        const name = this.nameFromUrl(url);
-        if (!this.apiMap[name])
-            this.apiMap[name] = new ScriptLoader(name, url, jsonpCallbackName);
-        this.apiMap[name].requestNotify(notifyCallback);
-    }
-    static getInstance() {
-        if (!ScriptLoaderMap.instance) {
-            ScriptLoaderMap.instance = new ScriptLoaderMap();
-        }
-        return ScriptLoaderMap.instance;
-    }
-    nameFromUrl(url) {
-        return `${url.replace(/[\:\/\%\?\&\.\=\-\,]/g, "_")}_api`;
-    }
-}
-class ScriptLoader {
-    constructor(name, url, callbackName) {
-        this.callbackMacro = "%%callback%%";
-        this.loaded = false;
-        this.script = null;
-        this.notifiers = [];
-        let scriptUrl = url;
-        let scriptCallbackName = callbackName;
-        if (!scriptCallbackName) {
-            if (scriptUrl.indexOf(this.callbackMacro) >= 0) {
-                scriptCallbackName = `${name}_loaded`;
-                scriptUrl = scriptUrl.replace(this.callbackMacro, scriptCallbackName);
-            }
-            else {
-                console.error("ScriptLoader class: a %%callback%% parameter is required in libraryUrl");
-                return;
-            }
-        }
-        this.callbackName = scriptCallbackName;
-        window[this.callbackName] = this.success.bind(this);
-        this.addScript(scriptUrl);
-    }
-    addScript(src) {
-        const script = document.createElement("script");
-        script.src = src;
-        script.onerror = this.handleError.bind(this);
-        const s = document.querySelector("script") || document.body;
-        s.parentNode.insertBefore(script, s);
-        this.script = script;
-    }
-    removeScript() {
-        if (this.script.parentNode) {
-            this.script.parentNode.removeChild(this.script);
-        }
-        this.script = null;
-    }
-    handleError(ev) {
-        this.error = new Error("Library failed to load");
-        this.notifyAll();
-        this.cleanup();
-    }
-    success(...rest) {
-        this.loaded = true;
-        this.result = rest;
-        this.notifyAll();
-        this.cleanup();
-    }
-    cleanup() {
-        delete window[this.callbackName];
-    }
-    notifyAll() {
-        this.notifiers.forEach(function (notifyCallback) {
-            notifyCallback(this.error, this.result);
-        }.bind(this));
-        this.notifiers = [];
-    }
-    requestNotify(notifyCallback) {
-        if (this.loaded || this.error) {
-            notifyCallback(this.error, this.result);
-        }
-        else {
-            this.notifiers.push(notifyCallback);
-        }
-    }
-}
-
-class JsonpLibraryElement extends LitElement {
-    constructor() {
-        super(...arguments);
-        this.libraryLoaded = false;
-        this.libraryErrorMessage = null;
-        this.isReady = false;
-    }
-    get callbackName() {
-        return null;
-    }
-    libraryUrlChanged() {
-        if (this.isReady && this.libraryUrl != null)
-            this.loadLibrary();
-    }
-    libraryLoadCallback(error, detail) {
-        if (error) {
-            console.warn("Library load failed:", error.message);
-            this.libraryErrorMessage = error.message;
-        }
-        else {
-            this.libraryErrorMessage = null;
-            this.libraryLoaded = true;
-            if (this.notifyEvent != null) {
-                this.dispatchEvent(new CustomEvent(this.notifyEvent, { detail: detail, composed: true }));
-            }
-        }
-    }
-    loadLibrary() {
-        ScriptLoaderMap.getInstance().require(this.libraryUrl, this.libraryLoadCallback.bind(this), this.callbackName);
-    }
-    connectedCallback() {
-        super.connectedCallback();
-        this.isReady = true;
-        if (this.libraryUrl != null)
-            this.loadLibrary();
-    }
-}
-let LitGoogleMapsApi = class LitGoogleMapsApi extends JsonpLibraryElement {
-    constructor() {
-        super(...arguments);
-        this.apiKey = "";
-        this.clientId = "";
-        this.mapsUrl = "https://maps.googleapis.com/maps/api/js?callback=%%callback%%";
-        this.version = "3.39";
-        this.language = "";
-        this.mapId = "";
-    }
-    get libraryUrl() {
-        return this.computeUrl(this.mapsUrl, this.version, this.apiKey, this.clientId, this.language, this.mapId);
-    }
-    get notifyEvent() {
-        return "api-load";
-    }
-    computeUrl(mapsUrl, version, apiKey, clientId, language, mapId) {
-        let url = `${mapsUrl}&v=${version}`;
-        url += "&libraries=drawing,geometry,places,visualization,marker";
-        if (apiKey && !clientId) {
-            url += `&key=${apiKey}`;
-        }
-        if (clientId) {
-            url += `&client=${clientId}`;
-        }
-        if (!apiKey && !clientId) {
-            const warning = "No Google Maps API Key or Client ID specified. " +
-                "See https://developers.google.com/maps/documentation/javascript/get-api-key " +
-                "for instructions to get started with a key or client id.";
-            console.warn(warning);
-        }
-        if (language) {
-            url += `&language=${language}`;
-        }
-        if (mapId) {
-            url += `&map_ids=${mapId}`;
-        }
-        return url;
-    }
-};
-__decorate([
-    property({ type: String, attribute: "api-key" }),
-    __metadata("design:type", Object)
-], LitGoogleMapsApi.prototype, "apiKey", void 0);
-__decorate([
-    property({ type: String, attribute: "client-id" }),
-    __metadata("design:type", Object)
-], LitGoogleMapsApi.prototype, "clientId", void 0);
-__decorate([
-    property({ type: String, attribute: "maps-url" }),
-    __metadata("design:type", Object)
-], LitGoogleMapsApi.prototype, "mapsUrl", void 0);
-__decorate([
-    property({ type: String }),
-    __metadata("design:type", Object)
-], LitGoogleMapsApi.prototype, "version", void 0);
-__decorate([
-    property({ type: String }),
-    __metadata("design:type", Object)
-], LitGoogleMapsApi.prototype, "language", void 0);
-__decorate([
-    property({ type: String, attribute: "map-id" }),
-    __metadata("design:type", Object)
-], LitGoogleMapsApi.prototype, "mapId", void 0);
-LitGoogleMapsApi = __decorate([
-    customElement("lit-google-maps-api")
-], LitGoogleMapsApi);
-
-let LitGoogleMapMarker = class LitGoogleMapMarker extends LitElement {
-    constructor() {
-        super(...arguments);
-        this.latitude = 0;
-        this.longitude = 0;
-        this.zIndex = 0;
-        this.open = false;
-        this.id = null;
-        this.glyph = null;
-        this.glyphColor = null;
-        this.background = null;
-        this.borderColor = null;
-        this.scale = null;
-        this.omitFromFit = false;
-        this.map = null;
-        this.marker = null;
-        this.pin = null;
-    }
-    attributeChangedCallback(name, oldval, newval) {
-        super.attributeChangedCallback(name, oldval, newval);
-        switch (name) {
-            case "open": {
-                this.openChanged();
-                break;
-            }
-            case "latitude": {
-                this.updatePosition();
-                break;
-            }
-            case "longitude": {
-                this.updatePosition();
-                break;
-            }
-            case "glyph": {
-                if (this.pin) {
-                    this.pin.glyph = this.glyph;
-                }
-                break;
-            }
-            case "glyphColor": {
-                if (this.pin) {
-                    this.pin.glyphColor = this.glyphColor;
-                }
-                break;
-            }
-            case "background": {
-                if (this.pin) {
-                    this.pin.background = this.background;
-                }
-                break;
-            }
-            case "borderColor": {
-                if (this.pin) {
-                    this.pin.borderColor = this.borderColor;
-                }
-                break;
-            }
-            case "scale": {
-                if (this.pin) {
-                    this.pin.scale = this.scale;
-                }
-                break;
-            }
-            case "z-index": {
-                if (this.marker) {
-                    this.marker.zIndex = this.zIndex;
-                }
-                break;
-            }
-        }
-    }
-    openChanged() {
-        if (!this.info)
-            return;
-        if (this.open) {
-            this.info.open(this.map, this.marker);
-            this.dispatchEvent(new CustomEvent("google-map-marker-open", { bubbles: true }));
-        }
-        else {
-            this.info.close();
-            this.dispatchEvent(new CustomEvent("google-map-marker-close", { bubbles: true }));
-        }
-    }
-    updatePosition() {
-        if (this.marker) {
-            this.marker.position = new google.maps.LatLng(this.latitude, this.longitude);
-        }
-    }
-    changeMap(newMap) {
-        this.map = newMap;
-        this.mapChanged();
-    }
-    mapChanged() {
-        if (this.marker) {
-            this.marker.map = null;
-            google.maps.event.clearInstanceListeners(this.marker);
-        }
-        if (this.map && this.map instanceof google.maps.Map) {
-            this.mapReady();
-        }
-    }
-    mapReady() {
-        this.pin = new google.maps.marker.PinElement({
-            glyph: this.glyph,
-            glyphColor: this.glyphColor,
-            background: this.background,
-            borderColor: this.borderColor,
-            scale: this.scale,
-        });
-        this.marker = new google.maps.marker.AdvancedMarkerElement({
-            map: this.map,
-            position: {
-                lat: this.latitude,
-                lng: this.longitude,
-            },
-            content: this.pin.element,
-            zIndex: this.zIndex,
-            gmpClickable: true,
-        });
-        this.pin.element.addEventListener("mouseover", () => {
-            this.dispatchEvent(new CustomEvent("mouseover", {
-                detail: { id: this.id },
-                bubbles: true,
-                composed: true,
-            }));
-        });
-        this.pin.element.addEventListener("mouseout", () => {
-            this.dispatchEvent(new CustomEvent("mouseout", {
-                detail: { id: this.id },
-                bubbles: true,
-                composed: true,
-            }));
-        });
-        this.marker.addListener("click", () => {
-            this.dispatchEvent(new CustomEvent("click", {
-                detail: { id: this.id },
-                bubbles: true,
-                composed: true,
-            }));
-        });
-        this.contentChanged();
-    }
-    contentChanged() {
-        if (this.contentObserver)
-            this.contentObserver.disconnect();
-        this.contentObserver = new MutationObserver(this.contentChanged.bind(this));
-        this.contentObserver.observe(this, {
-            childList: true,
-            subtree: true,
-        });
-        const content = this.innerHTML.trim();
-        if (content) {
-            if (!this.info) {
-                this.info = new google.maps.InfoWindow();
-                this.openInfoHandler = google.maps.event.addListener(this.marker, "click", function () {
-                    this.open = true;
-                }.bind(this));
-                this.closeInfoHandler = google.maps.event.addListener(this.info, "closeclick", function () {
-                    this.open = false;
-                }.bind(this));
-            }
-            this.info.setContent(content);
-        }
-        else {
-            if (this.info) {
-                google.maps.event.removeListener(this.openInfoHandler);
-                google.maps.event.removeListener(this.closeInfoHandler);
-                this.info = null;
-            }
-        }
-    }
-};
-__decorate([
-    property({ type: Number, reflect: true }),
-    __metadata("design:type", Object)
-], LitGoogleMapMarker.prototype, "latitude", void 0);
-__decorate([
-    property({ type: Number, reflect: true }),
-    __metadata("design:type", Object)
-], LitGoogleMapMarker.prototype, "longitude", void 0);
-__decorate([
-    property({ type: Number, reflect: true, attribute: "z-index" }),
-    __metadata("design:type", Object)
-], LitGoogleMapMarker.prototype, "zIndex", void 0);
-__decorate([
-    property({ type: Boolean, reflect: true }),
-    __metadata("design:type", Object)
-], LitGoogleMapMarker.prototype, "open", void 0);
-__decorate([
-    property({ type: String, reflect: true }),
-    __metadata("design:type", String)
-], LitGoogleMapMarker.prototype, "id", void 0);
-__decorate([
-    property({ type: String, reflect: true }),
-    __metadata("design:type", String)
-], LitGoogleMapMarker.prototype, "glyph", void 0);
-__decorate([
-    property({ type: String, reflect: true }),
-    __metadata("design:type", String)
-], LitGoogleMapMarker.prototype, "glyphColor", void 0);
-__decorate([
-    property({ type: String, reflect: true }),
-    __metadata("design:type", String)
-], LitGoogleMapMarker.prototype, "background", void 0);
-__decorate([
-    property({ type: String, reflect: true }),
-    __metadata("design:type", String)
-], LitGoogleMapMarker.prototype, "borderColor", void 0);
-__decorate([
-    property({ type: Number, reflect: true }),
-    __metadata("design:type", Number)
-], LitGoogleMapMarker.prototype, "scale", void 0);
-__decorate([
-    property({ type: Boolean, attribute: "omit-from-fit" }),
-    __metadata("design:type", Object)
-], LitGoogleMapMarker.prototype, "omitFromFit", void 0);
-LitGoogleMapMarker = __decorate([
-    customElement("lit-google-map-marker")
-], LitGoogleMapMarker);
-
-let LitGoogleMapCircle = class LitGoogleMapCircle extends LitElement {
-    constructor() {
-        super(...arguments);
-        this.centerLatitude = -34.397;
-        this.centerLongitude = 150.644;
-        this.radius = 100000;
-        this.fillColor = "#FF0000";
-        this.fillOpacity = 0.35;
-        this.strokeColor = "#FF0000";
-        this.strokeOpacity = 0.8;
-        this.strokeWeight = 2;
-        this.map = null;
-        this.circle = null;
-    }
-    attributeChangedCallback(name, oldval, newval) {
-        var _a;
-        super.attributeChangedCallback(name, oldval, newval);
-        switch (name) {
-            case "center-latitude": {
-                this.updateCenter();
-                break;
-            }
-            case "center-longitude": {
-                this.updateCenter();
-                break;
-            }
-            case "radius": {
-                (_a = this.circle) === null || _a === void 0 ? void 0 : _a.setRadius(this.radius);
-                break;
-            }
-        }
-    }
-    updateCenter() {
-        var _a;
-        (_a = this.circle) === null || _a === void 0 ? void 0 : _a.setCenter(new google.maps.LatLng(this.centerLatitude, this.centerLongitude));
-    }
-    attachToMap(map) {
-        this.map = map;
-        this.mapChanged();
-    }
-    mapChanged() {
-        if (this.circle) {
-            this.circle.setMap(null);
-            google.maps.event.clearInstanceListeners(this.circle);
-        }
-        if (this.map && this.map instanceof google.maps.Map) {
-            this.mapReady();
-        }
-    }
-    mapReady() {
-        this.circle = new google.maps.Circle({
-            map: this.map,
-            strokeColor: this.strokeColor,
-            strokeOpacity: this.strokeOpacity,
-            strokeWeight: this.strokeWeight,
-            fillColor: this.fillColor,
-            fillOpacity: this.fillOpacity,
-            center: {
-                lat: this.centerLatitude,
-                lng: this.centerLongitude,
-            },
-            radius: this.radius,
-        });
-    }
-};
-__decorate([
-    property({ type: Number, attribute: "center-latitude" }),
-    __metadata("design:type", Object)
-], LitGoogleMapCircle.prototype, "centerLatitude", void 0);
-__decorate([
-    property({ type: Number, attribute: "center-longitude" }),
-    __metadata("design:type", Object)
-], LitGoogleMapCircle.prototype, "centerLongitude", void 0);
-__decorate([
-    property({ type: Number }),
-    __metadata("design:type", Object)
-], LitGoogleMapCircle.prototype, "radius", void 0);
-__decorate([
-    property({ type: String, attribute: "fill-color" }),
-    __metadata("design:type", Object)
-], LitGoogleMapCircle.prototype, "fillColor", void 0);
-__decorate([
-    property({ type: Number, attribute: "fill-opacity" }),
-    __metadata("design:type", Object)
-], LitGoogleMapCircle.prototype, "fillOpacity", void 0);
-__decorate([
-    property({ type: String, attribute: "stroke-color" }),
-    __metadata("design:type", Object)
-], LitGoogleMapCircle.prototype, "strokeColor", void 0);
-__decorate([
-    property({ type: Number, attribute: "stroke-opacity" }),
-    __metadata("design:type", Object)
-], LitGoogleMapCircle.prototype, "strokeOpacity", void 0);
-__decorate([
-    property({ type: Number, attribute: "stroke-weight" }),
-    __metadata("design:type", Object)
-], LitGoogleMapCircle.prototype, "strokeWeight", void 0);
-LitGoogleMapCircle = __decorate([
-    customElement("lit-google-map-circle")
-], LitGoogleMapCircle);
-
-let LitGoogleMapPolygon = class LitGoogleMapPolygon extends LitElement {
-    constructor() {
-        super(...arguments);
-        this.paths = [];
-        this.fillColor = "#FF0000";
-        this.fillOpacity = 0.35;
-        this.strokeColor = "#FF0000";
-        this.strokeOpacity = 0.8;
-        this.strokeWeight = 2;
-        this.map = null;
-        this.polygon = null;
-    }
-    attachToMap(map) {
-        this.map = map;
-        this.mapChanged();
-    }
-    mapChanged() {
-        if (this.polygon) {
-            this.polygon.setMap(null);
-            google.maps.event.clearInstanceListeners(this.polygon);
-        }
-        if (this.map && this.map instanceof google.maps.Map) {
-            this.mapReady();
-        }
-    }
-    mapReady() {
-        this.polygon = new google.maps.Polygon({
-            map: this.map,
-            strokeColor: this.strokeColor,
-            strokeOpacity: this.strokeOpacity,
-            strokeWeight: this.strokeWeight,
-            fillColor: this.fillColor,
-            fillOpacity: this.fillOpacity,
-            paths: this.paths,
-        });
-    }
-};
-__decorate([
-    property({ type: Array }),
-    __metadata("design:type", Array)
-], LitGoogleMapPolygon.prototype, "paths", void 0);
-__decorate([
-    property({ type: String, attribute: "fill-color" }),
-    __metadata("design:type", Object)
-], LitGoogleMapPolygon.prototype, "fillColor", void 0);
-__decorate([
-    property({ type: Number, attribute: "fill-opacity" }),
-    __metadata("design:type", Object)
-], LitGoogleMapPolygon.prototype, "fillOpacity", void 0);
-__decorate([
-    property({ type: String, attribute: "stroke-color" }),
-    __metadata("design:type", Object)
-], LitGoogleMapPolygon.prototype, "strokeColor", void 0);
-__decorate([
-    property({ type: Number, attribute: "stroke-opacity" }),
-    __metadata("design:type", Object)
-], LitGoogleMapPolygon.prototype, "strokeOpacity", void 0);
-__decorate([
-    property({ type: Number, attribute: "stroke-weight" }),
-    __metadata("design:type", Object)
-], LitGoogleMapPolygon.prototype, "strokeWeight", void 0);
-LitGoogleMapPolygon = __decorate([
-    customElement("lit-google-map-polygon")
-], LitGoogleMapPolygon);
 
 let LitGoogleMap = class LitGoogleMap extends LitElement {
     constructor() {
@@ -735,8 +158,8 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         });
         return addedInBounds.length > 0 || removedInBounds.length > 0;
     }
-    deselectMarker(event) { }
-    deselectShape(event) { }
+    deselectMarker(_event) { }
+    deselectShape(_event) { }
     render() {
         return html `
       <lit-google-maps-api
@@ -817,6 +240,583 @@ __decorate([
 LitGoogleMap = __decorate([
     customElement("lit-google-map")
 ], LitGoogleMap);
+
+let LitGoogleMapCircle = class LitGoogleMapCircle extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.centerLatitude = -34.397;
+        this.centerLongitude = 150.644;
+        this.radius = 100000;
+        this.fillColor = "#FF0000";
+        this.fillOpacity = 0.35;
+        this.strokeColor = "#FF0000";
+        this.strokeOpacity = 0.8;
+        this.strokeWeight = 2;
+        this.map = null;
+        this.circle = null;
+    }
+    attributeChangedCallback(name, oldval, newval) {
+        var _a;
+        super.attributeChangedCallback(name, oldval, newval);
+        switch (name) {
+            case "center-latitude": {
+                this.updateCenter();
+                break;
+            }
+            case "center-longitude": {
+                this.updateCenter();
+                break;
+            }
+            case "radius": {
+                (_a = this.circle) === null || _a === void 0 ? void 0 : _a.setRadius(this.radius);
+                break;
+            }
+        }
+    }
+    updateCenter() {
+        var _a;
+        (_a = this.circle) === null || _a === void 0 ? void 0 : _a.setCenter(new google.maps.LatLng(this.centerLatitude, this.centerLongitude));
+    }
+    attachToMap(map) {
+        this.map = map;
+        this.mapChanged();
+    }
+    mapChanged() {
+        if (this.circle) {
+            this.circle.setMap(null);
+            google.maps.event.clearInstanceListeners(this.circle);
+        }
+        if (this.map && this.map instanceof google.maps.Map) {
+            this.mapReady();
+        }
+    }
+    mapReady() {
+        this.circle = new google.maps.Circle({
+            map: this.map,
+            strokeColor: this.strokeColor,
+            strokeOpacity: this.strokeOpacity,
+            strokeWeight: this.strokeWeight,
+            fillColor: this.fillColor,
+            fillOpacity: this.fillOpacity,
+            center: {
+                lat: this.centerLatitude,
+                lng: this.centerLongitude,
+            },
+            radius: this.radius,
+        });
+    }
+};
+__decorate([
+    property({ type: Number, attribute: "center-latitude" }),
+    __metadata("design:type", Object)
+], LitGoogleMapCircle.prototype, "centerLatitude", void 0);
+__decorate([
+    property({ type: Number, attribute: "center-longitude" }),
+    __metadata("design:type", Object)
+], LitGoogleMapCircle.prototype, "centerLongitude", void 0);
+__decorate([
+    property({ type: Number }),
+    __metadata("design:type", Object)
+], LitGoogleMapCircle.prototype, "radius", void 0);
+__decorate([
+    property({ type: String, attribute: "fill-color" }),
+    __metadata("design:type", Object)
+], LitGoogleMapCircle.prototype, "fillColor", void 0);
+__decorate([
+    property({ type: Number, attribute: "fill-opacity" }),
+    __metadata("design:type", Object)
+], LitGoogleMapCircle.prototype, "fillOpacity", void 0);
+__decorate([
+    property({ type: String, attribute: "stroke-color" }),
+    __metadata("design:type", Object)
+], LitGoogleMapCircle.prototype, "strokeColor", void 0);
+__decorate([
+    property({ type: Number, attribute: "stroke-opacity" }),
+    __metadata("design:type", Object)
+], LitGoogleMapCircle.prototype, "strokeOpacity", void 0);
+__decorate([
+    property({ type: Number, attribute: "stroke-weight" }),
+    __metadata("design:type", Object)
+], LitGoogleMapCircle.prototype, "strokeWeight", void 0);
+LitGoogleMapCircle = __decorate([
+    customElement("lit-google-map-circle")
+], LitGoogleMapCircle);
+
+let LitGoogleMapMarker = class LitGoogleMapMarker extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.latitude = 0;
+        this.longitude = 0;
+        this.zIndex = 0;
+        this.open = false;
+        this.id = null;
+        this.glyph = null;
+        this.glyphColor = null;
+        this.background = null;
+        this.borderColor = null;
+        this.scale = null;
+        this.omitFromFit = false;
+        this.map = null;
+        this.marker = null;
+        this.pin = null;
+    }
+    attributeChangedCallback(name, oldval, newval) {
+        super.attributeChangedCallback(name, oldval, newval);
+        switch (name) {
+            case "open": {
+                this.openChanged();
+                break;
+            }
+            case "latitude": {
+                this.updatePosition();
+                break;
+            }
+            case "longitude": {
+                this.updatePosition();
+                break;
+            }
+            case "glyph": {
+                if (this.pin) {
+                    this.pin.glyph = this.glyph;
+                }
+                break;
+            }
+            case "glyphColor": {
+                if (this.pin) {
+                    this.pin.glyphColor = this.glyphColor;
+                }
+                break;
+            }
+            case "background": {
+                if (this.pin) {
+                    this.pin.background = this.background;
+                }
+                break;
+            }
+            case "borderColor": {
+                if (this.pin) {
+                    this.pin.borderColor = this.borderColor;
+                }
+                break;
+            }
+            case "scale": {
+                if (this.pin) {
+                    this.pin.scale = this.scale;
+                }
+                break;
+            }
+            case "z-index": {
+                if (this.marker) {
+                    this.marker.zIndex = this.zIndex;
+                }
+                break;
+            }
+        }
+    }
+    openChanged() {
+        if (!this.info)
+            return;
+        if (this.open) {
+            this.info.open(this.map, this.marker);
+            this.dispatchEvent(new CustomEvent("google-map-marker-open", { bubbles: true }));
+        }
+        else {
+            this.info.close();
+            this.dispatchEvent(new CustomEvent("google-map-marker-close", { bubbles: true }));
+        }
+    }
+    updatePosition() {
+        if (this.marker) {
+            this.marker.position = new google.maps.LatLng(this.latitude, this.longitude);
+        }
+    }
+    changeMap(newMap) {
+        this.map = newMap;
+        this.mapChanged();
+    }
+    mapChanged() {
+        if (this.marker) {
+            this.marker.map = null;
+            google.maps.event.clearInstanceListeners(this.marker);
+        }
+        if (this.map && this.map instanceof google.maps.Map) {
+            this.mapReady();
+        }
+    }
+    mapReady() {
+        this.pin = new google.maps.marker.PinElement({
+            glyph: this.glyph,
+            glyphColor: this.glyphColor,
+            background: this.background,
+            borderColor: this.borderColor,
+            scale: this.scale,
+        });
+        this.marker = new google.maps.marker.AdvancedMarkerElement({
+            map: this.map,
+            position: {
+                lat: this.latitude,
+                lng: this.longitude,
+            },
+            content: this.pin.element,
+            zIndex: this.zIndex,
+            gmpClickable: true,
+        });
+        this.marker.addListener("mouseover", () => {
+            this.dispatchEvent(new CustomEvent("mouseover", {
+                detail: { id: this.id },
+                bubbles: true,
+                composed: true,
+            }));
+        });
+        this.marker.addListener("mouseout", () => {
+            this.dispatchEvent(new CustomEvent("mouseout", {
+                detail: { id: this.id },
+                bubbles: true,
+                composed: true,
+            }));
+        });
+        this.marker.addListener("click", () => {
+            this.dispatchEvent(new CustomEvent("click", {
+                detail: { id: this.id },
+                bubbles: true,
+                composed: true,
+            }));
+        });
+        this.contentChanged();
+    }
+    contentChanged() {
+        if (this.contentObserver)
+            this.contentObserver.disconnect();
+        this.contentObserver = new MutationObserver(this.contentChanged.bind(this));
+        this.contentObserver.observe(this, {
+            childList: true,
+            subtree: true,
+        });
+        const content = this.innerHTML.trim();
+        if (content) {
+            if (!this.info) {
+                this.info = new google.maps.InfoWindow();
+                this.openInfoHandler = google.maps.event.addListener(this.marker, "click", function () {
+                    this.open = true;
+                }.bind(this));
+                this.closeInfoHandler = google.maps.event.addListener(this.info, "closeclick", function () {
+                    this.open = false;
+                }.bind(this));
+            }
+            this.info.setContent(content);
+        }
+        else {
+            if (this.info) {
+                google.maps.event.removeListener(this.openInfoHandler);
+                google.maps.event.removeListener(this.closeInfoHandler);
+                this.info = null;
+            }
+        }
+    }
+};
+__decorate([
+    property({ type: Number, reflect: true }),
+    __metadata("design:type", Object)
+], LitGoogleMapMarker.prototype, "latitude", void 0);
+__decorate([
+    property({ type: Number, reflect: true }),
+    __metadata("design:type", Object)
+], LitGoogleMapMarker.prototype, "longitude", void 0);
+__decorate([
+    property({ type: Number, reflect: true, attribute: "z-index" }),
+    __metadata("design:type", Object)
+], LitGoogleMapMarker.prototype, "zIndex", void 0);
+__decorate([
+    property({ type: Boolean, reflect: true }),
+    __metadata("design:type", Object)
+], LitGoogleMapMarker.prototype, "open", void 0);
+__decorate([
+    property({ type: String, reflect: true }),
+    __metadata("design:type", String)
+], LitGoogleMapMarker.prototype, "id", void 0);
+__decorate([
+    property({ type: String, reflect: true }),
+    __metadata("design:type", String)
+], LitGoogleMapMarker.prototype, "glyph", void 0);
+__decorate([
+    property({ type: String, reflect: true }),
+    __metadata("design:type", String)
+], LitGoogleMapMarker.prototype, "glyphColor", void 0);
+__decorate([
+    property({ type: String, reflect: true }),
+    __metadata("design:type", String)
+], LitGoogleMapMarker.prototype, "background", void 0);
+__decorate([
+    property({ type: String, reflect: true }),
+    __metadata("design:type", String)
+], LitGoogleMapMarker.prototype, "borderColor", void 0);
+__decorate([
+    property({ type: Number, reflect: true }),
+    __metadata("design:type", Number)
+], LitGoogleMapMarker.prototype, "scale", void 0);
+__decorate([
+    property({ type: Boolean, attribute: "omit-from-fit" }),
+    __metadata("design:type", Object)
+], LitGoogleMapMarker.prototype, "omitFromFit", void 0);
+LitGoogleMapMarker = __decorate([
+    customElement("lit-google-map-marker")
+], LitGoogleMapMarker);
+
+let LitGoogleMapPolygon = class LitGoogleMapPolygon extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.paths = [];
+        this.fillColor = "#FF0000";
+        this.fillOpacity = 0.35;
+        this.strokeColor = "#FF0000";
+        this.strokeOpacity = 0.8;
+        this.strokeWeight = 2;
+        this.map = null;
+        this.polygon = null;
+    }
+    attachToMap(map) {
+        this.map = map;
+        this.mapChanged();
+    }
+    mapChanged() {
+        if (this.polygon) {
+            this.polygon.setMap(null);
+            google.maps.event.clearInstanceListeners(this.polygon);
+        }
+        if (this.map && this.map instanceof google.maps.Map) {
+            this.mapReady();
+        }
+    }
+    mapReady() {
+        this.polygon = new google.maps.Polygon({
+            map: this.map,
+            strokeColor: this.strokeColor,
+            strokeOpacity: this.strokeOpacity,
+            strokeWeight: this.strokeWeight,
+            fillColor: this.fillColor,
+            fillOpacity: this.fillOpacity,
+            paths: this.paths,
+        });
+    }
+};
+__decorate([
+    property({ type: Array }),
+    __metadata("design:type", Array)
+], LitGoogleMapPolygon.prototype, "paths", void 0);
+__decorate([
+    property({ type: String, attribute: "fill-color" }),
+    __metadata("design:type", Object)
+], LitGoogleMapPolygon.prototype, "fillColor", void 0);
+__decorate([
+    property({ type: Number, attribute: "fill-opacity" }),
+    __metadata("design:type", Object)
+], LitGoogleMapPolygon.prototype, "fillOpacity", void 0);
+__decorate([
+    property({ type: String, attribute: "stroke-color" }),
+    __metadata("design:type", Object)
+], LitGoogleMapPolygon.prototype, "strokeColor", void 0);
+__decorate([
+    property({ type: Number, attribute: "stroke-opacity" }),
+    __metadata("design:type", Object)
+], LitGoogleMapPolygon.prototype, "strokeOpacity", void 0);
+__decorate([
+    property({ type: Number, attribute: "stroke-weight" }),
+    __metadata("design:type", Object)
+], LitGoogleMapPolygon.prototype, "strokeWeight", void 0);
+LitGoogleMapPolygon = __decorate([
+    customElement("lit-google-map-polygon")
+], LitGoogleMapPolygon);
+
+class ScriptLoaderMap {
+    constructor() {
+        this.apiMap = {};
+    }
+    require(url, notifyCallback, jsonpCallbackName) {
+        const name = this.nameFromUrl(url);
+        if (!this.apiMap[name])
+            this.apiMap[name] = new ScriptLoader(name, url, jsonpCallbackName);
+        this.apiMap[name].requestNotify(notifyCallback);
+    }
+    static getInstance() {
+        if (!ScriptLoaderMap.instance) {
+            ScriptLoaderMap.instance = new ScriptLoaderMap();
+        }
+        return ScriptLoaderMap.instance;
+    }
+    nameFromUrl(url) {
+        return `${url.replace(/[:/%?&.=\-,]/g, "_")}_api`;
+    }
+}
+class ScriptLoader {
+    constructor(name, url, callbackName) {
+        this.callbackMacro = "%%callback%%";
+        this.loaded = false;
+        this.script = null;
+        this.notifiers = [];
+        let scriptUrl = url;
+        let scriptCallbackName = callbackName;
+        if (!scriptCallbackName) {
+            if (scriptUrl.indexOf(this.callbackMacro) >= 0) {
+                scriptCallbackName = `${name}_loaded`;
+                scriptUrl = scriptUrl.replace(this.callbackMacro, scriptCallbackName);
+            }
+            else {
+                console.error("ScriptLoader class: a %%callback%% parameter is required in libraryUrl");
+                return;
+            }
+        }
+        this.callbackName = scriptCallbackName;
+        window[this.callbackName] = this.success.bind(this);
+        this.addScript(scriptUrl);
+    }
+    addScript(src) {
+        const script = document.createElement("script");
+        script.src = src;
+        script.onerror = this.handleError.bind(this);
+        const s = document.querySelector("script") || document.body;
+        s.parentNode.insertBefore(script, s);
+        this.script = script;
+    }
+    removeScript() {
+        if (this.script.parentNode) {
+            this.script.parentNode.removeChild(this.script);
+        }
+        this.script = null;
+    }
+    handleError(_ev) {
+        this.error = new Error("Library failed to load");
+        this.notifyAll();
+        this.cleanup();
+    }
+    success(...rest) {
+        this.loaded = true;
+        this.result = rest;
+        this.notifyAll();
+        this.cleanup();
+    }
+    cleanup() {
+        delete window[this.callbackName];
+    }
+    notifyAll() {
+        this.notifiers.forEach(function (notifyCallback) {
+            notifyCallback(this.error, this.result);
+        }.bind(this));
+        this.notifiers = [];
+    }
+    requestNotify(notifyCallback) {
+        if (this.loaded || this.error) {
+            notifyCallback(this.error, this.result);
+        }
+        else {
+            this.notifiers.push(notifyCallback);
+        }
+    }
+}
+
+class JsonpLibraryElement extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.libraryLoaded = false;
+        this.libraryErrorMessage = null;
+        this.isReady = false;
+    }
+    get callbackName() {
+        return null;
+    }
+    libraryUrlChanged() {
+        if (this.isReady && this.libraryUrl != null)
+            this.loadLibrary();
+    }
+    libraryLoadCallback(error, detail) {
+        if (error) {
+            console.warn("Library load failed:", error.message);
+            this.libraryErrorMessage = error.message;
+        }
+        else {
+            this.libraryErrorMessage = null;
+            this.libraryLoaded = true;
+            if (this.notifyEvent != null) {
+                this.dispatchEvent(new CustomEvent(this.notifyEvent, { detail: detail, composed: true }));
+            }
+        }
+    }
+    loadLibrary() {
+        ScriptLoaderMap.getInstance().require(this.libraryUrl, this.libraryLoadCallback.bind(this), this.callbackName);
+    }
+    connectedCallback() {
+        super.connectedCallback();
+        this.isReady = true;
+        if (this.libraryUrl != null)
+            this.loadLibrary();
+    }
+}
+let LitGoogleMapsApi = class LitGoogleMapsApi extends JsonpLibraryElement {
+    constructor() {
+        super(...arguments);
+        this.apiKey = "";
+        this.clientId = "";
+        this.mapsUrl = "https://maps.googleapis.com/maps/api/js?callback=%%callback%%";
+        this.version = "3.39";
+        this.language = "";
+        this.mapId = "";
+    }
+    get libraryUrl() {
+        return this.computeUrl(this.mapsUrl, this.version, this.apiKey, this.clientId, this.language, this.mapId);
+    }
+    get notifyEvent() {
+        return "api-load";
+    }
+    computeUrl(mapsUrl, version, apiKey, clientId, language, mapId) {
+        let url = `${mapsUrl}&v=${version}`;
+        url += "&libraries=drawing,geometry,places,visualization,marker";
+        if (apiKey && !clientId) {
+            url += `&key=${apiKey}`;
+        }
+        if (clientId) {
+            url += `&client=${clientId}`;
+        }
+        if (!apiKey && !clientId) {
+            const warning = "No Google Maps API Key or Client ID specified. " +
+                "See https://developers.google.com/maps/documentation/javascript/get-api-key " +
+                "for instructions to get started with a key or client id.";
+            console.warn(warning);
+        }
+        if (language) {
+            url += `&language=${language}`;
+        }
+        if (mapId) {
+            url += `&map_ids=${mapId}`;
+        }
+        return url;
+    }
+};
+__decorate([
+    property({ type: String, attribute: "api-key" }),
+    __metadata("design:type", Object)
+], LitGoogleMapsApi.prototype, "apiKey", void 0);
+__decorate([
+    property({ type: String, attribute: "client-id" }),
+    __metadata("design:type", Object)
+], LitGoogleMapsApi.prototype, "clientId", void 0);
+__decorate([
+    property({ type: String, attribute: "maps-url" }),
+    __metadata("design:type", Object)
+], LitGoogleMapsApi.prototype, "mapsUrl", void 0);
+__decorate([
+    property({ type: String }),
+    __metadata("design:type", Object)
+], LitGoogleMapsApi.prototype, "version", void 0);
+__decorate([
+    property({ type: String }),
+    __metadata("design:type", Object)
+], LitGoogleMapsApi.prototype, "language", void 0);
+__decorate([
+    property({ type: String, attribute: "map-id" }),
+    __metadata("design:type", Object)
+], LitGoogleMapsApi.prototype, "mapId", void 0);
+LitGoogleMapsApi = __decorate([
+    customElement("lit-google-maps-api")
+], LitGoogleMapsApi);
 
 class XSelection {
     constructor(selectCallback) {
@@ -947,7 +947,7 @@ let LitSelector = class LitSelector extends LitElement {
     updateSelected() {
         this.selectSelected(this.selected);
     }
-    selectSelected(selected) {
+    selectSelected(_selected) {
         if (!this._items)
             return;
         const item = this.valueToItem(this.selected);

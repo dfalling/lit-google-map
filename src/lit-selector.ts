@@ -85,7 +85,7 @@ export class LitSelector extends LitElement {
         this.itemActivate(value, t);
         return;
       }
-      // @ts-ignore
+      // @ts-expect-error
       t = t.parentNode;
     }
   }

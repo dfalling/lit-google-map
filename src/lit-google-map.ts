@@ -131,7 +131,7 @@ export class LitGoogleMap extends LitElement {
       zoom: this.zoom,
       center: { lat: this.centerLatitude, lng: this.centerLongitude },
       mapTypeId: this.mapType,
-      // @ts-ignore
+      // @ts-expect-error
       styles: this.styles,
       mapId: this.mapId,
     };
