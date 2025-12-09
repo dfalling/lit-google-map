@@ -88,6 +88,30 @@ var LitGoogleMap = (function (exports) {
           this.mapId = "DEMO_MAP_ID";
           this.map = null;
       }
+      attributeChangedCallback(name, oldValue, newValue) {
+          super.attributeChangedCallback(name, oldValue, newValue);
+          if (this.map && oldValue !== newValue && newValue !== null) {
+              if (name === "center-latitude" || name === "center-longitude") {
+                  this.map.setCenter({
+                      lat: this.centerLatitude,
+                      lng: this.centerLongitude,
+                  });
+              }
+              else if (name === "zoom") {
+                  this.map.setZoom(this.zoom);
+              }
+          }
+      }
+      dispatchViewChanged() {
+          this.dispatchEvent(new CustomEvent("view_changed", {
+              detail: {
+                  center: this.map.getCenter().toJSON(),
+                  zoom: this.map.getZoom(),
+              },
+              bubbles: true,
+              composed: true,
+          }));
+      }
       initGMap() {
           if (this.map != null) {
               return;
@@ -110,6 +134,22 @@ var LitGoogleMap = (function (exports) {
                   bubbles: true,
                   composed: true,
               }));
+          });
+          this.map.addListener("center_changed", () => {
+              this.dispatchEvent(new CustomEvent("center_changed", {
+                  detail: this.map.getCenter().toJSON(),
+                  bubbles: true,
+                  composed: true,
+              }));
+              this.dispatchViewChanged();
+          });
+          this.map.addListener("zoom_changed", () => {
+              this.dispatchEvent(new CustomEvent("zoom_changed", {
+                  detail: { zoom: this.map.getZoom() },
+                  bubbles: true,
+                  composed: true,
+              }));
+              this.dispatchViewChanged();
           });
           this.map.addListener("click", (event) => {
               if ("placeId" in event) {
@@ -139,6 +179,27 @@ var LitGoogleMap = (function (exports) {
       connectedCallback() {
           super.connectedCallback();
           this.initGMap();
+      }
+      updated(changedProperties) {
+          super.updated(changedProperties);
+          if (this.map) {
+              if (changedProperties.has("centerLatitude") ||
+                  changedProperties.has("centerLongitude")) {
+                  changedProperties.get("centerLatitude");
+                  changedProperties.get("centerLongitude");
+                  this.map.setCenter({
+                      lat: this.centerLatitude,
+                      lng: this.centerLongitude,
+                  });
+              }
+              if (changedProperties.has("zoom")) {
+                  changedProperties.get("zoom");
+                  this.map.setZoom(this.zoom);
+              }
+          }
+          else {
+              console.log("Map not initialized yet, skipping update");
+          }
       }
       attachChildrenToMap(children) {
           if (this.map) {
@@ -197,10 +258,9 @@ var LitGoogleMap = (function (exports) {
           }
       }
       fitToMarkersChanged(retryAttempt = 0) {
-          const markers = this.markers.filter((m) => !m.omitFromFit);
-          if (this.map && this.fitToMarkers && markers.length > 0) {
+          if (this.map && this.fitToMarkers && this.markers.length > 0) {
               const latLngBounds = new google.maps.LatLngBounds();
-              for (const marker of markers) {
+              for (const marker of this.markers) {
                   latLngBounds.extend(new google.maps.LatLng(marker.latitude, marker.longitude));
               }
               const domDimensions = this.getBoundingClientRect();
@@ -212,7 +272,7 @@ var LitGoogleMap = (function (exports) {
                   }, timeout);
                   return;
               }
-              if (markers.length > 1) {
+              if (this.markers.length > 1) {
                   this.map.fitBounds(latLngBounds, 0);
               }
               this.map.setCenter(latLngBounds.getCenter());
@@ -220,12 +280,10 @@ var LitGoogleMap = (function (exports) {
       }
       checkBoundsChanged(oldMarkers, newMarkers) {
           const addedInBounds = newMarkers.filter((m) => {
-              return (!m.omitFromFit &&
-                  (!oldMarkers || !oldMarkers.includes(m)));
+              return !oldMarkers || !oldMarkers.includes(m);
           });
           const removedInBounds = oldMarkers === null || oldMarkers === void 0 ? void 0 : oldMarkers.filter((m) => {
-              return (!m.omitFromFit &&
-                  (!newMarkers || !newMarkers.includes(m)));
+              return !newMarkers || !newMarkers.includes(m);
           });
           return addedInBounds.length > 0 || removedInBounds.length > 0;
       }
@@ -426,7 +484,6 @@ var LitGoogleMap = (function (exports) {
           this.background = null;
           this.borderColor = null;
           this.scale = null;
-          this.omitFromFit = false;
           this.map = null;
           this.marker = null;
           this.pin = null;
@@ -625,10 +682,6 @@ var LitGoogleMap = (function (exports) {
       n({ type: Number, reflect: true }),
       __metadata("design:type", Number)
   ], exports.LitGoogleMapMarker.prototype, "scale", void 0);
-  __decorate([
-      n({ type: Boolean, attribute: "omit-from-fit" }),
-      __metadata("design:type", Object)
-  ], exports.LitGoogleMapMarker.prototype, "omitFromFit", void 0);
   exports.LitGoogleMapMarker = __decorate([
       t("lit-google-map-marker")
   ], exports.LitGoogleMapMarker);

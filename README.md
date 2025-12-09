@@ -6,7 +6,7 @@ This project is a fork of [lit-google-map](https://github.com/arkadiuszwojcik/li
 - add marker `mouseover` and `mouseout` events
 - fix marker `icon` attribute not being updateable live
 - update dependencies and keep current with Dependabot
-- add `omit-from-fit` to markers. This lets you add more markers to display on the map that won't affect the sizing of the bounds box
+- add `zoom_changed`, `center_changed`, and `view_changed` events
 - move to [AdvancedMarkerElement](https://developers.google.com/maps/documentation/javascript/advanced-markers/migration)
 
 ## Table of contents
@@ -109,6 +109,9 @@ Example:
 
 - '_bounds_changed_' - Custom Event with `detail` attribute containing `north`, `south`, `east`, and `west` attributes
 - '_tilesloaded_' - Custom Event containing the same data as `bounds_changed`
+- '_center_changed_' - Custom Event with `detail` attribute containing `lat` and `lng` attributes
+- '_zoom_changed_' - Custom Event with `detail` attribute containing `zoom` attribute
+- '_view_changed_' - Custom Event with `detail` attribute containing `center` (with `lat` and `lng`) and `zoom` attributes. Fires whenever either center or zoom changes
 - '_place_click_' - Custom Event containing `detail` attribute containing `placeId` attribute
 
 ## Marker events
@@ -121,7 +124,6 @@ Example:
 
 - '_latitude_' - Marker latitude position
 - '_longitude_' - Marker longitude position
-- '_omit-from-fit_' - Don't include marker when fitting map bounds to markers
 - '_z-index_' - Marker z index
 - '_id_' - Use with Marker events to identify the source
 - '_glyph_' - Glyph in center of pin
