@@ -64,6 +64,35 @@ export class LitGoogleMap extends LitElement {
 
   markerObserverSet: boolean;
 
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+    super.attributeChangedCallback(name, oldValue, newValue);
+
+    // Update map when center/zoom attributes change
+    if (this.map && oldValue !== newValue && newValue !== null) {
+      if (name === "center-latitude" || name === "center-longitude") {
+        this.map.setCenter({
+          lat: this.centerLatitude,
+          lng: this.centerLongitude,
+        });
+      } else if (name === "zoom") {
+        this.map.setZoom(this.zoom);
+      }
+    }
+  }
+
+  dispatchViewChanged() {
+    this.dispatchEvent(
+      new CustomEvent("view_changed", {
+        detail: {
+          center: this.map.getCenter().toJSON(),
+          zoom: this.map.getZoom(),
+        },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
   initGMap() {
     if (this.map != null) {
       return; // already initialized
@@ -101,6 +130,28 @@ export class LitGoogleMap extends LitElement {
           composed: true,
         }),
       );
+    });
+
+    this.map.addListener("center_changed", () => {
+      this.dispatchEvent(
+        new CustomEvent("center_changed", {
+          detail: this.map.getCenter().toJSON(),
+          bubbles: true,
+          composed: true,
+        }),
+      );
+      this.dispatchViewChanged();
+    });
+
+    this.map.addListener("zoom_changed", () => {
+      this.dispatchEvent(
+        new CustomEvent("zoom_changed", {
+          detail: { zoom: this.map.getZoom() },
+          bubbles: true,
+          composed: true,
+        }),
+      );
+      this.dispatchViewChanged();
     });
 
     // https://developers.google.com/maps/documentation/javascript/examples/event-poi
@@ -143,8 +194,34 @@ export class LitGoogleMap extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-
     this.initGMap();
+  }
+
+  updated(changedProperties: Map<string, unknown>) {
+    super.updated(changedProperties);
+
+    // Update map center and zoom when properties change
+    if (this.map) {
+      if (
+        changedProperties.has("centerLatitude") ||
+        changedProperties.has("centerLongitude")
+      ) {
+        const _oldLat = changedProperties.get("centerLatitude");
+        const _oldLng = changedProperties.get("centerLongitude");
+
+        this.map.setCenter({
+          lat: this.centerLatitude,
+          lng: this.centerLongitude,
+        });
+      }
+
+      if (changedProperties.has("zoom")) {
+        const _oldZoom = changedProperties.get("zoom");
+        this.map.setZoom(this.zoom);
+      }
+    } else {
+      console.log("Map not initialized yet, skipping update");
+    }
   }
 
   attachChildrenToMap(children: Array<Node>) {
@@ -222,12 +299,9 @@ export class LitGoogleMap extends LitElement {
   }
 
   fitToMarkersChanged(retryAttempt = 0) {
-    const markers = this.markers.filter(
-      (m) => !(m as LitGoogleMapMarker).omitFromFit,
-    );
-    if (this.map && this.fitToMarkers && markers.length > 0) {
+    if (this.map && this.fitToMarkers && this.markers.length > 0) {
       const latLngBounds = new google.maps.LatLngBounds();
-      for (const marker of markers) {
+      for (const marker of this.markers) {
         latLngBounds.extend(
           new google.maps.LatLng(
             (marker as LitGoogleMapMarker).latitude,
@@ -249,7 +323,7 @@ export class LitGoogleMap extends LitElement {
       }
 
       // For one marker, don't alter zoom, just center it.
-      if (markers.length > 1) {
+      if (this.markers.length > 1) {
         this.map.fitBounds(latLngBounds, 0);
       }
       this.map.setCenter(latLngBounds.getCenter());
@@ -258,20 +332,12 @@ export class LitGoogleMap extends LitElement {
 
   checkBoundsChanged(oldMarkers: Array<Node>, newMarkers: Array<Node>) {
     const addedInBounds = newMarkers.filter((m) => {
-      return (
-        // skip items that are omitted from fit
-        !(m as LitGoogleMapMarker).omitFromFit &&
-        // if we have no markers, or the item wasn't there before, the bounds need to be updated
-        (!oldMarkers || !oldMarkers.includes(m))
-      );
+      // if we have no markers, or the item wasn't there before, the bounds need to be updated
+      return !oldMarkers || !oldMarkers.includes(m);
     });
     const removedInBounds = oldMarkers?.filter((m) => {
-      return (
-        // skip items that are omitted from fit
-        !(m as LitGoogleMapMarker).omitFromFit &&
-        // if we have no markers, or the item isn't there anymore, the bounds need to be updated
-        (!newMarkers || !newMarkers.includes(m))
-      );
+      // if we have no markers, or the item isn't there anymore, the bounds need to be updated
+      return !newMarkers || !newMarkers.includes(m);
     });
 
     return addedInBounds.length > 0 || removedInBounds.length > 0;

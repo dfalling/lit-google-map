@@ -33,12 +33,6 @@ export class LitGoogleMapMarker extends LitElement {
   @property({ type: Number, reflect: true })
   scale: number = null;
 
-  /**
-   * If set, the marker will not be used to calculate the map's bounds.
-   */
-  @property({ type: Boolean, attribute: "omit-from-fit" })
-  omitFromFit = false;
-
   map: google.maps.Map = null;
   marker: google.maps.marker.AdvancedMarkerElement = null;
   pin: google.maps.marker.PinElement = null;
