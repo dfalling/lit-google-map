@@ -8,6 +8,7 @@ This project is a fork of [lit-google-map](https://github.com/arkadiuszwojcik/li
 - update dependencies and keep current with Dependabot
 - add `zoom_changed`, `center_changed`, and `view_changed` events
 - move to [AdvancedMarkerElement](https://developers.google.com/maps/documentation/javascript/advanced-markers/migration)
+- add location button control for centering map on user's current location
 
 ## Table of contents
 
@@ -22,6 +23,8 @@ This project is a fork of [lit-google-map](https://github.com/arkadiuszwojcik/li
 [Circle shape element attributes](#Circle-shape-element-attributes)
 
 [Polygon shape element attributes](#Polygon-shape-element-attributes)
+
+[Location button control](#Location-button-control)
 
 [How to build](#How-to-build)
 
@@ -206,6 +209,51 @@ Example:
   stroke-weight="5"
 >
 </lit-google-map-polygon>
+```
+
+## Location button control
+
+The location button control adds a native-looking button to the map that centers the map on the user's current location using the browser's Geolocation API.
+
+**Note:** Geolocation requires HTTPS (or localhost for development).
+
+### Location button attributes
+
+- '_position_' - Control position on map (default: 'RIGHT_BOTTOM')
+  - Valid values: 'TOP_LEFT', 'TOP_CENTER', 'TOP_RIGHT', 'LEFT_TOP', 'LEFT_CENTER', 'LEFT_BOTTOM', 'RIGHT_TOP', 'RIGHT_CENTER', 'RIGHT_BOTTOM', 'BOTTOM_LEFT', 'BOTTOM_CENTER', 'BOTTOM_RIGHT'
+- '_label_' - Accessible label for screen readers (default: 'My Location')
+- '_disabled_' - Disable the button (default: false)
+
+### Location button events
+
+- '_location-requested_' - Fired when button is clicked and location request begins
+- '_location-found_' - Fired when location is successfully obtained
+  - Detail: `{lat: number, lng: number}`
+- '_location-error_' - Fired when geolocation fails
+  - Detail: `{code: number, message: string}`
+
+### Example
+
+Basic usage:
+
+```html
+<lit-google-map api-key="YOUR_GOOGLE_MAPS_API_KEY">
+  <lit-google-map-location-button slot="controls">
+  </lit-google-map-location-button>
+</lit-google-map>
+```
+
+With custom position:
+
+```html
+<lit-google-map api-key="YOUR_GOOGLE_MAPS_API_KEY">
+  <lit-google-map-location-button
+    slot="controls"
+    position="TOP_RIGHT"
+    label="Find Me"
+  >
+  </lit-google-map-location-button>
+</lit-google-map>
 ```
 
 ## How to build
