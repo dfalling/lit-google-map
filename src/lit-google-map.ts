@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import type { LitGoogleMapLocationButton } from "./lit-google-map-location-button";
 import type { LitGoogleMapMarker } from "./lit-google-map-marker";
 import type { LitGoogleMapsApi } from "./lit-google-maps-api";
 import type { LitSelector } from "./lit-selector";
@@ -61,6 +62,7 @@ export class LitGoogleMap extends LitElement {
 
   markers: Array<Node>;
   shapes: Array<Node>;
+  controls: Array<Node>;
 
   markerObserverSet: boolean;
 
@@ -175,6 +177,7 @@ export class LitGoogleMap extends LitElement {
 
     this.updateMarkers();
     this.updateShapes();
+    this.updateControls();
   }
 
   getMapOptions(): google.maps.MapOptions {
@@ -298,6 +301,19 @@ export class LitGoogleMap extends LitElement {
     }
   }
 
+  updateControls() {
+    const controlsSelector = this.shadowRoot.getElementById(
+      "controls-selector",
+    ) as LitSelector;
+    if (!controlsSelector) return;
+
+    this.controls = controlsSelector.items;
+
+    for (const c of this.controls) {
+      (c as LitGoogleMapLocationButton).changeMap(this.map);
+    }
+  }
+
   fitToMarkersChanged(retryAttempt = 0) {
     if (this.map && this.fitToMarkers && this.markers.length > 0) {
       const latLngBounds = new google.maps.LatLngBounds();
@@ -380,6 +396,13 @@ export class LitGoogleMap extends LitElement {
         @google-map-shape-close=${(e) => this.deselectShape(e)}
       >
         <slot id="shapes" name="shapes"></slot>
+      </lit-selector>
+      <lit-selector
+        id="controls-selector"
+        selected-attribute="open"
+        activate-event="google-map-control-activate"
+      >
+        <slot id="controls" name="controls"></slot>
       </lit-selector>
       <div id="map"></div>
     `;
