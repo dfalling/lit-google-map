@@ -16,7 +16,13 @@
 
     // Modules
     "module": "ES2015",
-    "moduleResolution": "node"
+    "moduleResolution": "bundler",
+
+    // Types
+    "types": ["google.maps"],
+
+    // Input
+    "rootDir": "./src"
   },
   "include": ["src/**/*.ts"],
   "exclude": []

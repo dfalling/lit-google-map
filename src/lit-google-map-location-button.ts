@@ -12,12 +12,12 @@ export class LitGoogleMapLocationButton extends LitElement {
   @property({ type: Boolean, reflect: true })
   disabled = false;
 
-  map: google.maps.Map = null;
-  controlDiv: HTMLDivElement = null;
-  controlButton: HTMLButtonElement = null;
+  map: google.maps.Map | null = null;
+  controlDiv: HTMLDivElement | null = null;
+  controlButton: HTMLButtonElement | null = null;
   isRequesting = false;
 
-  changeMap(newMap: google.maps.Map) {
+  changeMap(newMap: google.maps.Map | null) {
     this.map = newMap;
     this.mapChanged();
   }
@@ -45,7 +45,7 @@ export class LitGoogleMapLocationButton extends LitElement {
       ];
 
     if (controlPosition !== undefined) {
-      this.map.controls[controlPosition].push(this.controlDiv);
+      this.map?.controls[controlPosition].push(this.controlDiv);
     }
   }
 
@@ -139,8 +139,8 @@ export class LitGoogleMapLocationButton extends LitElement {
       const lng = position.coords.longitude;
 
       // Center the map
-      this.map.setCenter({ lat, lng });
-      this.map.setZoom(14);
+      this.map?.setCenter({ lat, lng });
+      this.map?.setZoom(14);
 
       this.dispatchEvent(
         new CustomEvent("location-found", {

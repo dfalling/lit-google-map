@@ -22,8 +22,8 @@ export class LitGoogleMapPolygon extends LitElement implements Shape {
   @property({ type: Number, attribute: "stroke-weight" })
   strokeWeight = 2;
 
-  map: google.maps.Map = null;
-  polygon: google.maps.Polygon = null;
+  map: google.maps.Map | null = null;
+  polygon: google.maps.Polygon | null = null;
 
   attachToMap(map: google.maps.Map): void {
     this.map = map;

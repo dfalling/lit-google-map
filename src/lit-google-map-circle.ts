@@ -28,8 +28,8 @@ export class LitGoogleMapCircle extends LitElement implements Shape {
   @property({ type: Number, attribute: "stroke-weight" })
   strokeWeight = 2;
 
-  map: google.maps.Map = null;
-  circle: google.maps.Circle = null;
+  map: google.maps.Map | null = null;
+  circle: google.maps.Circle | null = null;
 
   attributeChangedCallback(name: string, oldval: string, newval: string) {
     super.attributeChangedCallback(name, oldval, newval);

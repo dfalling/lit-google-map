@@ -25,7 +25,7 @@ export class LitGoogleMap extends LitElement {
    * For style documentation see https://developers.google.com/maps/documentation/javascript/reference#MapTypeStyle
    */
   @property({ type: Object })
-  styles: object = {};
+  styles: google.maps.MapTypeStyle[] = [];
 
   /**
    * A zoom level to set the map to.
@@ -58,13 +58,13 @@ export class LitGoogleMap extends LitElement {
   @property({ type: String, attribute: "map-id" })
   mapId = "DEMO_MAP_ID";
 
-  map: google.maps.Map = null;
+  map: google.maps.Map | null = null;
 
-  markers: Array<Node>;
-  shapes: Array<Node>;
-  controls: Array<Node>;
+  markers: Array<Node> = [];
+  shapes: Array<Node> = [];
+  controls: Array<Node> = [];
 
-  markerObserverSet: boolean;
+  markerObserverSet = false;
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     super.attributeChangedCallback(name, oldValue, newValue);
@@ -86,8 +86,8 @@ export class LitGoogleMap extends LitElement {
     this.dispatchEvent(
       new CustomEvent("view_changed", {
         detail: {
-          center: this.map.getCenter().toJSON(),
-          zoom: this.map.getZoom(),
+          center: this.map?.getCenter()?.toJSON(),
+          zoom: this.map?.getZoom(),
         },
         bubbles: true,
         composed: true,
@@ -100,7 +100,7 @@ export class LitGoogleMap extends LitElement {
       return; // already initialized
     }
 
-    const gMapApiElement = this.shadowRoot.getElementById(
+    const gMapApiElement = this.shadowRoot?.getElementById(
       "api",
     ) as LitGoogleMapsApi;
 
@@ -109,7 +109,7 @@ export class LitGoogleMap extends LitElement {
     }
 
     this.map = new google.maps.Map(
-      this.shadowRoot.getElementById("map"),
+      this.shadowRoot?.getElementById("map") as HTMLElement,
       this.getMapOptions(),
     );
 
@@ -117,7 +117,7 @@ export class LitGoogleMap extends LitElement {
     this.map.addListener("bounds_changed", () => {
       this.dispatchEvent(
         new CustomEvent("bounds_changed", {
-          detail: this.map.getBounds().toJSON(),
+          detail: this.map?.getBounds()?.toJSON(),
           bubbles: true,
           composed: true,
         }),
@@ -127,7 +127,7 @@ export class LitGoogleMap extends LitElement {
     this.map.addListener("tilesloaded", () => {
       this.dispatchEvent(
         new CustomEvent("tilesloaded", {
-          detail: this.map.getBounds().toJSON(),
+          detail: this.map?.getBounds()?.toJSON(),
           bubbles: true,
           composed: true,
         }),
@@ -137,7 +137,7 @@ export class LitGoogleMap extends LitElement {
     this.map.addListener("center_changed", () => {
       this.dispatchEvent(
         new CustomEvent("center_changed", {
-          detail: this.map.getCenter().toJSON(),
+          detail: this.map?.getCenter()?.toJSON(),
           bubbles: true,
           composed: true,
         }),
@@ -148,7 +148,7 @@ export class LitGoogleMap extends LitElement {
     this.map.addListener("zoom_changed", () => {
       this.dispatchEvent(
         new CustomEvent("zoom_changed", {
-          detail: { zoom: this.map.getZoom() },
+          detail: { zoom: this.map?.getZoom() },
           bubbles: true,
           composed: true,
         }),
@@ -185,7 +185,6 @@ export class LitGoogleMap extends LitElement {
       zoom: this.zoom,
       center: { lat: this.centerLatitude, lng: this.centerLongitude },
       mapTypeId: this.mapType,
-      // @ts-expect-error
       styles: this.styles,
       mapId: this.mapId,
     };
@@ -255,7 +254,7 @@ export class LitGoogleMap extends LitElement {
   updateMarkers() {
     this.observeMarkers();
 
-    const markersSelector = this.shadowRoot.getElementById(
+    const markersSelector = this.shadowRoot?.getElementById(
       "markers-selector",
     ) as LitSelector;
     if (!markersSelector) return;
@@ -289,7 +288,8 @@ export class LitGoogleMap extends LitElement {
   }
 
   updateShapes() {
-    const shapesSelector = this.shadowRoot.getElementById(
+    if (!this.map) return;
+    const shapesSelector = this.shadowRoot?.getElementById(
       "shapes-selector",
     ) as LitSelector;
     if (!shapesSelector) return;
@@ -302,7 +302,8 @@ export class LitGoogleMap extends LitElement {
   }
 
   updateControls() {
-    const controlsSelector = this.shadowRoot.getElementById(
+    if (!this.map) return;
+    const controlsSelector = this.shadowRoot?.getElementById(
       "controls-selector",
     ) as LitSelector;
     if (!controlsSelector) return;
@@ -349,11 +350,11 @@ export class LitGoogleMap extends LitElement {
   checkBoundsChanged(oldMarkers: Array<Node>, newMarkers: Array<Node>) {
     const addedInBounds = newMarkers.filter((m) => {
       // if we have no markers, or the item wasn't there before, the bounds need to be updated
-      return !oldMarkers || !oldMarkers.includes(m);
+      return !oldMarkers?.includes(m);
     });
     const removedInBounds = oldMarkers?.filter((m) => {
       // if we have no markers, or the item isn't there anymore, the bounds need to be updated
-      return !newMarkers || !newMarkers.includes(m);
+      return !newMarkers?.includes(m);
     });
 
     return addedInBounds.length > 0 || removedInBounds.length > 0;

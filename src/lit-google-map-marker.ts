@@ -16,7 +16,7 @@ export class LitGoogleMapMarker extends LitElement {
   open = false;
 
   @property({ type: String, reflect: true })
-  id: string | null = null;
+  id = "";
 
   @property({ type: String, reflect: true })
   glyph: string | null = null;
@@ -31,15 +31,15 @@ export class LitGoogleMapMarker extends LitElement {
   borderColor: string | null = null;
 
   @property({ type: Number, reflect: true })
-  scale: number = null;
+  scale: number | null = null;
 
-  map: google.maps.Map = null;
-  marker: google.maps.marker.AdvancedMarkerElement = null;
-  pin: google.maps.marker.PinElement = null;
-  info: google.maps.InfoWindow;
-  contentObserver: MutationObserver;
-  openInfoHandler: google.maps.MapsEventListener;
-  closeInfoHandler: google.maps.MapsEventListener;
+  map: google.maps.Map | null = null;
+  marker: google.maps.marker.AdvancedMarkerElement | null = null;
+  pin: google.maps.marker.PinElement | null = null;
+  info: google.maps.InfoWindow | undefined;
+  contentObserver!: MutationObserver;
+  openInfoHandler!: google.maps.MapsEventListener;
+  closeInfoHandler!: google.maps.MapsEventListener;
 
   attributeChangedCallback(name: string, oldval: string, newval: string) {
     super.attributeChangedCallback(name, oldval, newval);
@@ -120,7 +120,7 @@ export class LitGoogleMapMarker extends LitElement {
     }
   }
 
-  changeMap(newMap: google.maps.Map) {
+  changeMap(newMap: google.maps.Map | null) {
     this.map = newMap;
     this.mapChanged();
   }
@@ -128,8 +128,9 @@ export class LitGoogleMapMarker extends LitElement {
   mapChanged() {
     // Marker will be rebuilt, so disconnect existing one from old map and listeners.
     if (this.marker) {
-      this.marker.map = null;
-      google.maps.event.clearInstanceListeners(this.marker);
+      const marker = this.marker;
+      marker.map = null;
+      google.maps.event.clearInstanceListeners(marker);
     }
 
     if (this.map && this.map instanceof google.maps.Map) {
@@ -202,21 +203,23 @@ export class LitGoogleMapMarker extends LitElement {
     if (content) {
       if (!this.info) {
         this.info = new google.maps.InfoWindow();
+        const marker = this.marker;
+        if (!marker) return;
 
         this.openInfoHandler = google.maps.event.addListener(
-          this.marker,
+          marker,
           "click",
-          function () {
+          () => {
             this.open = true;
-          }.bind(this),
+          },
         );
 
         this.closeInfoHandler = google.maps.event.addListener(
           this.info,
           "closeclick",
-          function () {
+          () => {
             this.open = false;
-          }.bind(this),
+          },
         );
       }
       this.info.setContent(content);
@@ -225,7 +228,7 @@ export class LitGoogleMapMarker extends LitElement {
         // Destroy the existing infowindow.  It doesn't make sense to have an empty one.
         google.maps.event.removeListener(this.openInfoHandler);
         google.maps.event.removeListener(this.closeInfoHandler);
-        this.info = null;
+        this.info = undefined;
       }
     }
   }
