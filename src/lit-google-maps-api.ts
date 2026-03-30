@@ -22,7 +22,7 @@ abstract class JsonpLibraryElement extends LitElement {
     if (this.isReady && this.libraryUrl != null) this.loadLibrary();
   }
 
-  libraryLoadCallback(error: Error, detail: unknown) {
+  libraryLoadCallback(error: Error | undefined, detail: unknown) {
     if (error) {
       console.warn("Library load failed:", error.message);
       this.libraryErrorMessage = error.message;

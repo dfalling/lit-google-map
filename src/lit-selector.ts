@@ -85,7 +85,7 @@ export class LitSelector extends LitElement {
         this.itemActivate(value, t);
         return;
       }
-      t = t.parentNode;
+      t = t.parentNode as Node;
     }
   }
 
@@ -121,7 +121,7 @@ export class LitSelector extends LitElement {
     }
   }
 
-  valueToItem(value: number | string | null): Node {
+  valueToItem(value: number | string | null): Node | null {
     return value == null ? null : this._items[this.valueToIndex(value)];
   }
 

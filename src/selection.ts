@@ -1,7 +1,7 @@
 export class XSelection<TItem> {
   multi: boolean;
   selection: Array<TItem>;
-  selectCallback: (item: TItem, isSelected: boolean) => void;
+  selectCallback?: (item: TItem, isSelected: boolean) => void;
 
   constructor(selectCallback?: (item: TItem, isSelected: boolean) => void) {
     this.multi = false;

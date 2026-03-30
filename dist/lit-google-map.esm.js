@@ -7,7 +7,7 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         super(...arguments);
         this.apiKey = "";
         this.version = "3.48";
-        this.styles = {};
+        this.styles = [];
         this.zoom = 8;
         this.fitToMarkers = false;
         this.mapType = "roadmap";
@@ -16,6 +16,10 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         this.language = "";
         this.mapId = "DEMO_MAP_ID";
         this.map = null;
+        this.markers = [];
+        this.shapes = [];
+        this.controls = [];
+        this.markerObserverSet = false;
     }
     attributeChangedCallback(name, oldValue, newValue) {
         super.attributeChangedCallback(name, oldValue, newValue);
@@ -32,49 +36,55 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         }
     }
     dispatchViewChanged() {
+        var _a, _b, _c;
         this.dispatchEvent(new CustomEvent("view_changed", {
             detail: {
-                center: this.map.getCenter().toJSON(),
-                zoom: this.map.getZoom(),
+                center: (_b = (_a = this.map) === null || _a === void 0 ? void 0 : _a.getCenter()) === null || _b === void 0 ? void 0 : _b.toJSON(),
+                zoom: (_c = this.map) === null || _c === void 0 ? void 0 : _c.getZoom(),
             },
             bubbles: true,
             composed: true,
         }));
     }
     initGMap() {
+        var _a, _b;
         if (this.map != null) {
             return;
         }
-        const gMapApiElement = this.shadowRoot.getElementById("api");
+        const gMapApiElement = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById("api");
         if (gMapApiElement == null || gMapApiElement.libraryLoaded !== true) {
             return;
         }
-        this.map = new google.maps.Map(this.shadowRoot.getElementById("map"), this.getMapOptions());
+        this.map = new google.maps.Map((_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.getElementById("map"), this.getMapOptions());
         this.map.addListener("bounds_changed", () => {
+            var _a, _b;
             this.dispatchEvent(new CustomEvent("bounds_changed", {
-                detail: this.map.getBounds().toJSON(),
+                detail: (_b = (_a = this.map) === null || _a === void 0 ? void 0 : _a.getBounds()) === null || _b === void 0 ? void 0 : _b.toJSON(),
                 bubbles: true,
                 composed: true,
             }));
         });
         this.map.addListener("tilesloaded", () => {
+            var _a, _b;
             this.dispatchEvent(new CustomEvent("tilesloaded", {
-                detail: this.map.getBounds().toJSON(),
+                detail: (_b = (_a = this.map) === null || _a === void 0 ? void 0 : _a.getBounds()) === null || _b === void 0 ? void 0 : _b.toJSON(),
                 bubbles: true,
                 composed: true,
             }));
         });
         this.map.addListener("center_changed", () => {
+            var _a, _b;
             this.dispatchEvent(new CustomEvent("center_changed", {
-                detail: this.map.getCenter().toJSON(),
+                detail: (_b = (_a = this.map) === null || _a === void 0 ? void 0 : _a.getCenter()) === null || _b === void 0 ? void 0 : _b.toJSON(),
                 bubbles: true,
                 composed: true,
             }));
             this.dispatchViewChanged();
         });
         this.map.addListener("zoom_changed", () => {
+            var _a;
             this.dispatchEvent(new CustomEvent("zoom_changed", {
-                detail: { zoom: this.map.getZoom() },
+                detail: { zoom: (_a = this.map) === null || _a === void 0 ? void 0 : _a.getZoom() },
                 bubbles: true,
                 composed: true,
             }));
@@ -154,9 +164,9 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         this.markerObserverSet = true;
     }
     updateMarkers() {
-        var _a;
+        var _a, _b;
         this.observeMarkers();
-        const markersSelector = this.shadowRoot.getElementById("markers-selector");
+        const markersSelector = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById("markers-selector");
         if (!markersSelector)
             return;
         const newMarkers = markersSelector.items;
@@ -168,7 +178,7 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
                 return;
         }
         const boundsChanged = this.checkBoundsChanged(this.markers, newMarkers);
-        const removedMarkers = ((_a = this.markers) === null || _a === void 0 ? void 0 : _a.filter((m) => {
+        const removedMarkers = ((_b = this.markers) === null || _b === void 0 ? void 0 : _b.filter((m) => {
             return newMarkers.indexOf(m) === -1;
         })) || [];
         this.detachChildrenFromMap(removedMarkers);
@@ -179,7 +189,10 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         }
     }
     updateShapes() {
-        const shapesSelector = this.shadowRoot.getElementById("shapes-selector");
+        var _a;
+        if (!this.map)
+            return;
+        const shapesSelector = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById("shapes-selector");
         if (!shapesSelector)
             return;
         this.shapes = shapesSelector.items;
@@ -188,7 +201,10 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         }
     }
     updateControls() {
-        const controlsSelector = this.shadowRoot.getElementById("controls-selector");
+        var _a;
+        if (!this.map)
+            return;
+        const controlsSelector = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById("controls-selector");
         if (!controlsSelector)
             return;
         this.controls = controlsSelector.items;
@@ -219,10 +235,10 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
     }
     checkBoundsChanged(oldMarkers, newMarkers) {
         const addedInBounds = newMarkers.filter((m) => {
-            return !oldMarkers || !oldMarkers.includes(m);
+            return !(oldMarkers === null || oldMarkers === void 0 ? void 0 : oldMarkers.includes(m));
         });
         const removedInBounds = oldMarkers === null || oldMarkers === void 0 ? void 0 : oldMarkers.filter((m) => {
-            return !newMarkers || !newMarkers.includes(m);
+            return !(newMarkers === null || newMarkers === void 0 ? void 0 : newMarkers.includes(m));
         });
         return addedInBounds.length > 0 || removedInBounds.length > 0;
     }
@@ -282,7 +298,7 @@ __decorate([
 ], LitGoogleMap.prototype, "version", void 0);
 __decorate([
     property({ type: Object }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Array)
 ], LitGoogleMap.prototype, "styles", void 0);
 __decorate([
     property({ type: Number }),
@@ -442,10 +458,11 @@ let LitGoogleMapLocationButton = class LitGoogleMapLocationButton extends LitEle
         }
     }
     mapReady() {
+        var _a;
         this.controlDiv = this.createControlButton();
         const controlPosition = google.maps.ControlPosition[this.position];
         if (controlPosition !== undefined) {
-            this.map.controls[controlPosition].push(this.controlDiv);
+            (_a = this.map) === null || _a === void 0 ? void 0 : _a.controls[controlPosition].push(this.controlDiv);
         }
     }
     createControlButton() {
@@ -494,6 +511,7 @@ let LitGoogleMapLocationButton = class LitGoogleMapLocationButton extends LitEle
         return controlDiv;
     }
     async handleLocationRequest() {
+        var _a, _b;
         if (!navigator.geolocation) {
             this.dispatchEvent(new CustomEvent("location-error", {
                 detail: {
@@ -515,8 +533,8 @@ let LitGoogleMapLocationButton = class LitGoogleMapLocationButton extends LitEle
             const position = await this.getCurrentPosition();
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
-            this.map.setCenter({ lat, lng });
-            this.map.setZoom(14);
+            (_a = this.map) === null || _a === void 0 ? void 0 : _a.setCenter({ lat, lng });
+            (_b = this.map) === null || _b === void 0 ? void 0 : _b.setZoom(14);
             this.dispatchEvent(new CustomEvent("location-found", {
                 detail: { lat, lng },
                 bubbles: true,
@@ -628,7 +646,7 @@ let LitGoogleMapMarker = class LitGoogleMapMarker extends LitElement {
         this.longitude = 0;
         this.zIndex = 0;
         this.open = false;
-        this.id = null;
+        this.id = "";
         this.glyph = null;
         this.glyphColor = null;
         this.background = null;
@@ -714,8 +732,9 @@ let LitGoogleMapMarker = class LitGoogleMapMarker extends LitElement {
     }
     mapChanged() {
         if (this.marker) {
-            this.marker.map = null;
-            google.maps.event.clearInstanceListeners(this.marker);
+            const marker = this.marker;
+            marker.map = null;
+            google.maps.event.clearInstanceListeners(marker);
         }
         if (this.map && this.map instanceof google.maps.Map) {
             this.mapReady();
@@ -774,12 +793,15 @@ let LitGoogleMapMarker = class LitGoogleMapMarker extends LitElement {
         if (content) {
             if (!this.info) {
                 this.info = new google.maps.InfoWindow();
-                this.openInfoHandler = google.maps.event.addListener(this.marker, "click", function () {
+                const marker = this.marker;
+                if (!marker)
+                    return;
+                this.openInfoHandler = google.maps.event.addListener(marker, "click", () => {
                     this.open = true;
-                }.bind(this));
-                this.closeInfoHandler = google.maps.event.addListener(this.info, "closeclick", function () {
+                });
+                this.closeInfoHandler = google.maps.event.addListener(this.info, "closeclick", () => {
                     this.open = false;
-                }.bind(this));
+                });
             }
             this.info.setContent(content);
         }
@@ -787,7 +809,7 @@ let LitGoogleMapMarker = class LitGoogleMapMarker extends LitElement {
             if (this.info) {
                 google.maps.event.removeListener(this.openInfoHandler);
                 google.maps.event.removeListener(this.closeInfoHandler);
-                this.info = null;
+                this.info = undefined;
             }
         }
     }
@@ -810,27 +832,27 @@ __decorate([
 ], LitGoogleMapMarker.prototype, "open", void 0);
 __decorate([
     property({ type: String, reflect: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], LitGoogleMapMarker.prototype, "id", void 0);
 __decorate([
     property({ type: String, reflect: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], LitGoogleMapMarker.prototype, "glyph", void 0);
 __decorate([
     property({ type: String, reflect: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], LitGoogleMapMarker.prototype, "glyphColor", void 0);
 __decorate([
     property({ type: String, reflect: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], LitGoogleMapMarker.prototype, "background", void 0);
 __decorate([
     property({ type: String, reflect: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], LitGoogleMapMarker.prototype, "borderColor", void 0);
 __decorate([
     property({ type: Number, reflect: true }),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], LitGoogleMapMarker.prototype, "scale", void 0);
 LitGoogleMapMarker = __decorate([
     customElement("lit-google-map-marker")
@@ -944,15 +966,17 @@ class ScriptLoader {
         this.addScript(scriptUrl);
     }
     addScript(src) {
+        var _a;
         const script = document.createElement("script");
         script.src = src;
         script.onerror = this.handleError.bind(this);
         const s = document.querySelector("script") || document.body;
-        s.parentNode.insertBefore(script, s);
+        (_a = s.parentNode) === null || _a === void 0 ? void 0 : _a.insertBefore(script, s);
         this.script = script;
     }
     removeScript() {
-        if (this.script.parentNode) {
+        var _a;
+        if ((_a = this.script) === null || _a === void 0 ? void 0 : _a.parentNode) {
             this.script.parentNode.removeChild(this.script);
         }
         this.script = null;
@@ -972,9 +996,9 @@ class ScriptLoader {
         delete window[this.callbackName];
     }
     notifyAll() {
-        this.notifiers.forEach(function (notifyCallback) {
+        this.notifiers.forEach((notifyCallback) => {
             notifyCallback(this.error, this.result);
-        }.bind(this));
+        });
         this.notifiers = [];
     }
     requestNotify(notifyCallback) {
@@ -1251,7 +1275,7 @@ __decorate([
 ], LitSelector.prototype, "activateEvent", void 0);
 __decorate([
     property({ type: String, attribute: "selected-attribute" }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], LitSelector.prototype, "selectedAttribute", void 0);
 __decorate([
     property({ type: Number, reflect: true }),

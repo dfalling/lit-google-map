@@ -1,4 +1,7 @@
-export type notifyCallback = (error: Error, result: unknown) => void;
+export type notifyCallback = (
+  error: Error | undefined,
+  result: unknown,
+) => void;
 
 interface Dictionary<T> {
   [Key: string]: T;
@@ -11,7 +14,7 @@ export class ScriptLoaderMap {
   public require(
     url: string,
     notifyCallback: notifyCallback,
-    jsonpCallbackName: string,
+    jsonpCallbackName: string | null,
   ) {
     const name = this.nameFromUrl(url);
 
@@ -37,15 +40,15 @@ export class ScriptLoaderMap {
 }
 
 class ScriptLoader {
-  error: Error;
+  error: Error | undefined;
   result: unknown;
   notifiers: Array<notifyCallback>;
-  callbackName: string;
+  callbackName!: string;
   callbackMacro = "%%callback%%";
   loaded = false;
-  script: HTMLScriptElement = null;
+  script: HTMLScriptElement | null = null;
 
-  constructor(name: string, url: string, callbackName: string) {
+  constructor(name: string, url: string, callbackName: string | null) {
     this.notifiers = [];
     let scriptUrl = url;
     let scriptCallbackName = callbackName;
@@ -74,18 +77,18 @@ class ScriptLoader {
     script.src = src;
     script.onerror = this.handleError.bind(this);
     const s = document.querySelector("script") || document.body;
-    s.parentNode.insertBefore(script, s);
+    s.parentNode?.insertBefore(script, s);
     this.script = script;
   }
 
   removeScript() {
-    if (this.script.parentNode) {
+    if (this.script?.parentNode) {
       this.script.parentNode.removeChild(this.script);
     }
     this.script = null;
   }
 
-  handleError(_ev: OnErrorEventHandlerNonNull) {
+  handleError(_ev: Event | string) {
     this.error = new Error("Library failed to load");
     this.notifyAll();
     this.cleanup();
@@ -103,11 +106,9 @@ class ScriptLoader {
   }
 
   notifyAll() {
-    this.notifiers.forEach(
-      function (notifyCallback: notifyCallback) {
-        notifyCallback(this.error, this.result);
-      }.bind(this),
-    );
+    this.notifiers.forEach((notifyCallback: notifyCallback) => {
+      notifyCallback(this.error, this.result);
+    });
     this.notifiers = [];
   }
 
