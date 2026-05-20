@@ -9,6 +9,7 @@ This project is a fork of [lit-google-map](https://github.com/arkadiuszwojcik/li
 - add `zoom_changed`, `center_changed`, and `view_changed` events
 - move to [AdvancedMarkerElement](https://developers.google.com/maps/documentation/javascript/advanced-markers/migration)
 - add location button control for centering map on user's current location
+- add `color-scheme` attribute for dark/light/system color scheme support
 
 ## Table of contents
 
@@ -94,6 +95,7 @@ or/and shapes:
 - '_map-type_' - Map type to display: 'roadmap', 'satellite', 'hybrid', 'terrain'
 - '_center-latitude_'- Latitude of map initial center point
 - '_center-longitude_' - Longitude of map initial center point
+- '_color-scheme_' - Map color scheme: `'LIGHT'`, `'DARK'`, or `'FOLLOW_SYSTEM'` (optional, defaults to `'LIGHT'`)
 
 Example:
 

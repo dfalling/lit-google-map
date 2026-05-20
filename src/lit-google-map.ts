@@ -58,6 +58,9 @@ export class LitGoogleMap extends LitElement {
   @property({ type: String, attribute: "map-id" })
   mapId = "DEMO_MAP_ID";
 
+  @property({ type: String, attribute: "color-scheme" })
+  colorScheme: google.maps.ColorScheme | "" = "";
+
   map: google.maps.Map | null = null;
 
   markers: Array<Node> = [];
@@ -78,6 +81,8 @@ export class LitGoogleMap extends LitElement {
         });
       } else if (name === "zoom") {
         this.map.setZoom(this.zoom);
+      } else if (name === "color-scheme" && this.colorScheme) {
+        this.map.setOptions({ colorScheme: this.colorScheme });
       }
     }
   }
@@ -187,6 +192,7 @@ export class LitGoogleMap extends LitElement {
       mapTypeId: this.mapType,
       styles: this.styles,
       mapId: this.mapId,
+      ...(this.colorScheme && { colorScheme: this.colorScheme }),
     };
   }
 

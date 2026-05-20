@@ -86,6 +86,7 @@ var LitGoogleMap = (function (exports) {
           this.centerLongitude = 150.644;
           this.language = "";
           this.mapId = "DEMO_MAP_ID";
+          this.colorScheme = "";
           this.map = null;
           this.markers = [];
           this.shapes = [];
@@ -103,6 +104,9 @@ var LitGoogleMap = (function (exports) {
               }
               else if (name === "zoom") {
                   this.map.setZoom(this.zoom);
+              }
+              else if (name === "color-scheme" && this.colorScheme) {
+                  this.map.setOptions({ colorScheme: this.colorScheme });
               }
           }
       }
@@ -176,13 +180,7 @@ var LitGoogleMap = (function (exports) {
           this.updateControls();
       }
       getMapOptions() {
-          return {
-              zoom: this.zoom,
-              center: { lat: this.centerLatitude, lng: this.centerLongitude },
-              mapTypeId: this.mapType,
-              styles: this.styles,
-              mapId: this.mapId,
-          };
+          return Object.assign({ zoom: this.zoom, center: { lat: this.centerLatitude, lng: this.centerLongitude }, mapTypeId: this.mapType, styles: this.styles, mapId: this.mapId }, (this.colorScheme && { colorScheme: this.colorScheme }));
       }
       mapApiLoaded() {
           this.initGMap();
@@ -399,6 +397,10 @@ var LitGoogleMap = (function (exports) {
       n({ type: String, attribute: "map-id" }),
       __metadata("design:type", Object)
   ], exports.LitGoogleMap.prototype, "mapId", void 0);
+  __decorate([
+      n({ type: String, attribute: "color-scheme" }),
+      __metadata("design:type", String)
+  ], exports.LitGoogleMap.prototype, "colorScheme", void 0);
   exports.LitGoogleMap = __decorate([
       t("lit-google-map")
   ], exports.LitGoogleMap);

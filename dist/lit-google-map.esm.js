@@ -15,6 +15,7 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         this.centerLongitude = 150.644;
         this.language = "";
         this.mapId = "DEMO_MAP_ID";
+        this.colorScheme = "";
         this.map = null;
         this.markers = [];
         this.shapes = [];
@@ -32,6 +33,9 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
             }
             else if (name === "zoom") {
                 this.map.setZoom(this.zoom);
+            }
+            else if (name === "color-scheme" && this.colorScheme) {
+                this.map.setOptions({ colorScheme: this.colorScheme });
             }
         }
     }
@@ -105,13 +109,7 @@ let LitGoogleMap = class LitGoogleMap extends LitElement {
         this.updateControls();
     }
     getMapOptions() {
-        return {
-            zoom: this.zoom,
-            center: { lat: this.centerLatitude, lng: this.centerLongitude },
-            mapTypeId: this.mapType,
-            styles: this.styles,
-            mapId: this.mapId,
-        };
+        return Object.assign({ zoom: this.zoom, center: { lat: this.centerLatitude, lng: this.centerLongitude }, mapTypeId: this.mapType, styles: this.styles, mapId: this.mapId }, (this.colorScheme && { colorScheme: this.colorScheme }));
     }
     mapApiLoaded() {
         this.initGMap();
@@ -328,6 +326,10 @@ __decorate([
     property({ type: String, attribute: "map-id" }),
     __metadata("design:type", Object)
 ], LitGoogleMap.prototype, "mapId", void 0);
+__decorate([
+    property({ type: String, attribute: "color-scheme" }),
+    __metadata("design:type", String)
+], LitGoogleMap.prototype, "colorScheme", void 0);
 LitGoogleMap = __decorate([
     customElement("lit-google-map")
 ], LitGoogleMap);
