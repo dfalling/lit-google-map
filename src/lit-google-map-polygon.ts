@@ -5,7 +5,7 @@ import type { Shape } from "./shape";
 @customElement("lit-google-map-polygon")
 export class LitGoogleMapPolygon extends LitElement implements Shape {
   @property({ type: Array })
-  paths: object[] = [];
+  paths: google.maps.LatLngLiteral[] = [];
 
   @property({ type: String, attribute: "fill-color" })
   fillColor = "#FF0000";
